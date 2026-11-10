@@ -1,6 +1,6 @@
 BINARY_NAME=bin/qcore
 
-.PHONY: all build test test-rules scan clean help
+.PHONY: all build test test-rules benchmark scan clean help
 
 all: test build
 
@@ -11,6 +11,9 @@ build:
 
 test:
 	go test -v ./...
+
+benchmark: build
+	./$(BINARY_NAME) benchmark
 
 test-rules: build
 	./$(BINARY_NAME) rules test

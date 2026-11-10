@@ -26,6 +26,10 @@ jobs:
         run: |
           go build -ldflags="-s -w" -o bin/qcore cmd/qcore/main.go
 
+      - name: Verify Reliability Release Gate (Precision & Recall Benchmark)
+        run: |
+          ./bin/qcore benchmark
+
       - name: Execute Cryptographic Discovery Scan (CycloneDX 1.6 CBOM)
         run: |
           ./bin/qcore scan . -f cbom -o cbom.json

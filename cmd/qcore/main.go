@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"github.com/vardhan/qcore/pkg/benchmark"
 	"github.com/vardhan/qcore/pkg/cbom"
 	"github.com/vardhan/qcore/pkg/model"
 	"github.com/vardhan/qcore/pkg/reporter"
@@ -33,6 +34,7 @@ CycloneDX 1.6 Cryptographic Bill of Materials (CBOM) and SARIF reports.`,
 
 	rootCmd.AddCommand(newScanCmd())
 	rootCmd.AddCommand(newRulesCmd())
+	rootCmd.AddCommand(newBenchmarkCmd())
 	rootCmd.AddCommand(newVersionCmd())
 
 	if err := rootCmd.Execute(); err != nil {
@@ -257,6 +259,47 @@ func newRulesCmd() *cobra.Command {
 			return nil
 		},
 	})
+
+	return cmd
+}
+
+func newBenchmarkCmd() *cobra.Command {
+	var (
+		minPrecision float64
+		minRecall    float64
+		maxFPRate    float64
+	)
+
+	cmd := &cobra.Command{
+		Use:   "benchmark",
+		Short: "Evaluate rule accuracy, precision, and recall against the ground-truth corpus",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			engine, err := rules.NewDefaultEngine()
+			if err != nil {
+				return fmt.Errorf("failed to load rule engine: %w", err)
+			}
+
+			thresholds := benchmark.Thresholds{
+				MinPrecision: minPrecision,
+				MinRecall:    minRecall,
+				MaxFPRate:    maxFPRate,
+			}
+
+			runner := benchmark.NewRunner(engine, thresholds)
+			metrics := runner.Run(benchmark.SeededCorpus)
+
+			fmt.Print(metrics.PrintReport())
+
+			if !metrics.PassedGate {
+				os.Exit(1)
+			}
+			return nil
+		},
+	}
+
+	cmd.Flags().Float64Var(&minPrecision, "min-precision", 0.85, "Minimum required precision (0.0 to 1.0)")
+	cmd.Flags().Float64Var(&minRecall, "min-recall", 0.85, "Minimum required recall (0.0 to 1.0)")
+	cmd.Flags().Float64Var(&maxFPRate, "max-fp", 0.15, "Maximum allowed false-positive rate (0.0 to 1.0)")
 
 	return cmd
 }
