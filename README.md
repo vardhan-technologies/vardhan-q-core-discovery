@@ -15,6 +15,9 @@
 * **Standards-Compliant Exports:**
   * **CycloneDX 1.6 CBOM:** Schema-compliant Cryptographic Bill of Materials with deterministic ordering.
   * **OASIS SARIF 2.1.0:** Direct ingestion into GitHub Code Scanning and GitLab Security Dashboards.
+* **Cryptographic Attestations (PRD R-04):** Generates tamper-evident, cryptographically signed audit certificates (Ed25519) that prevent post-scan tampering of report or CBOM data.
+* **Baseline & Exemption Management (PRD F-08):** Allows CISOs and AppSec leads to approve risk acceptances with expiration dates without breaking CI pipelines.
+* **Signed Offline Intelligence Bundles (PRD D-04, L-04):** Safely injects signed updates of cryptographic rules and capability databases into air-gapped CI environments.
 * **Declarative YAML Rule Engine:** Extensible rules with mandatory positive (`must_match`) and negative (`must_not_match`) test fixtures to guarantee zero regressions.
 * **Calibrated Risk Scoring:** Transparent risk formula factoring in vulnerability class, data lifetime, network exposure, and migration difficulty.
 

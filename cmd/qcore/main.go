@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/vardhan/qcore/pkg/attestation"
+	"github.com/vardhan/qcore/pkg/baseline"
 	"github.com/vardhan/qcore/pkg/benchmark"
+	"github.com/vardhan/qcore/pkg/bundle"
 	"github.com/vardhan/qcore/pkg/cbom"
 	"github.com/vardhan/qcore/pkg/model"
 	"github.com/vardhan/qcore/pkg/reporter"
@@ -35,6 +39,9 @@ CycloneDX 1.6 Cryptographic Bill of Materials (CBOM) and SARIF reports.`,
 	rootCmd.AddCommand(newScanCmd())
 	rootCmd.AddCommand(newRulesCmd())
 	rootCmd.AddCommand(newBenchmarkCmd())
+	rootCmd.AddCommand(newKeygenCmd())
+	rootCmd.AddCommand(newVerifyCmd())
+	rootCmd.AddCommand(newBaselineCmd())
 	rootCmd.AddCommand(newVersionCmd())
 
 	if err := rootCmd.Execute(); err != nil {
@@ -52,6 +59,11 @@ func newScanCmd() *cobra.Command {
 		exposure      string
 		dataLifetime  string
 		projectName   string
+		baselineFile  string
+		signWithKey   string
+		issuer        string
+		bundleFile    string
+		trustedKey    string
 	)
 
 	cmd := &cobra.Command{
@@ -82,6 +94,19 @@ func newScanCmd() *cobra.Command {
 				}
 			}
 
+			// Load signed intelligence bundle if provided (PRD D-04/L-04)
+			if bundleFile != "" {
+				b, err := bundle.LoadFromFile(bundleFile)
+				if err != nil {
+					return fmt.Errorf("failed to load capability bundle: %w", err)
+				}
+				if err := b.Install(engine, trustedKey); err != nil {
+					return fmt.Errorf("bundle verification/installation failed: %w", err)
+				}
+				fmt.Printf("[INTEL] Installed verified offline capability bundle: %s (%s)\n",
+					b.BundleVersion, b.Description)
+			}
+
 			// Setup Risk Configuration
 			riskCfg := model.DefaultRiskConfig()
 			switch exposure {
@@ -110,22 +135,61 @@ func newScanCmd() *cobra.Command {
 				return fmt.Errorf("scan failed: %w", err)
 			}
 
+			// Apply baseline if provided (PRD F-08)
+			if baselineFile != "" {
+				bl, err := baseline.Load(baselineFile)
+				if err != nil {
+					return fmt.Errorf("failed to load baseline %s: %w", baselineFile, err)
+				}
+				res := bl.Apply(report)
+				fmt.Printf("[BASELINE] Reconciled against %s: %d accepted exceptions active, %d expired\n",
+					baselineFile, res.ActiveExceptions, res.ExpiredExceptions)
+			}
+
+			// Generate CBOM representation
+			if projectName == "" {
+				projectName = filepath.Base(absTarget)
+			}
+			cbomDoc, err := cbom.GenerateCBOM(report, projectName)
+			if err != nil {
+				return fmt.Errorf("failed to generate CBOM: %w", err)
+			}
+			cbomBytes, err := cbom.ToJSON(cbomDoc)
+			if err != nil {
+				return fmt.Errorf("failed to serialize CBOM: %w", err)
+			}
+
+			reportBytes, _ := json.MarshalIndent(report, "", "  ")
+
+			// Cryptographic Attestation Signing (PRD R-04)
+			if signWithKey != "" {
+				privKeyRaw, err := os.ReadFile(signWithKey)
+				if err != nil {
+					return fmt.Errorf("failed reading signing key from %s: %w", signWithKey, err)
+				}
+				privKeyStr := strings.TrimSpace(string(privKeyRaw))
+				att, err := attestation.CreateAttestation(report, reportBytes, cbomBytes, issuer, privKeyStr)
+				if err != nil {
+					return fmt.Errorf("failed to generate audit attestation: %w", err)
+				}
+				attBytes, _ := attestation.ToJSON(att)
+				attPath := outputFile
+				if attPath == "" {
+					attPath = "qcore-audit-attestation.json"
+				} else {
+					attPath = strings.TrimSuffix(attPath, filepath.Ext(attPath)) + ".attestation.json"
+				}
+				if err := os.WriteFile(attPath, attBytes, 0644); err != nil {
+					return fmt.Errorf("failed writing attestation: %w", err)
+				}
+				fmt.Printf("[ATTESTATION] Signed audit certificate generated at: %s (ID: %s)\n", attPath, att.ID)
+			}
+
 			// Format and render results
 			var outputBytes []byte
 			switch format {
 			case "cbom":
-				if projectName == "" {
-					projectName = filepath.Base(absTarget)
-				}
-				cbomDoc, err := cbom.GenerateCBOM(report, projectName)
-				if err != nil {
-					return fmt.Errorf("failed to generate CBOM: %w", err)
-				}
-				outputBytes, err = cbom.ToJSON(cbomDoc)
-				if err != nil {
-					return fmt.Errorf("failed to serialize CBOM: %w", err)
-				}
-
+				outputBytes = cbomBytes
 			case "sarif":
 				sarifDoc, err := sarif.GenerateSARIF(report)
 				if err != nil {
@@ -135,13 +199,8 @@ func newScanCmd() *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("failed to serialize SARIF: %w", err)
 				}
-
 			case "json":
-				outputBytes, err = json.MarshalIndent(report, "", "  ")
-				if err != nil {
-					return fmt.Errorf("failed to serialize JSON report: %w", err)
-				}
-
+				outputBytes = reportBytes
 			case "table":
 				fallthrough
 			default:
@@ -182,6 +241,11 @@ func newScanCmd() *cobra.Command {
 	cmd.Flags().StringVar(&exposure, "exposure", "internet", "Asset exposure factor: 'internet' (1.5), 'internal' (1.0), 'offline' (0.7)")
 	cmd.Flags().StringVar(&dataLifetime, "data-lifetime", "medium", "Confidentiality lifetime factor: 'long' (>10y), 'medium' (1-10y), 'short' (<1y)")
 	cmd.Flags().StringVar(&projectName, "project-name", "", "Project name for CBOM metadata")
+	cmd.Flags().StringVar(&baselineFile, "baseline", "", "Path to .qcore-baseline.json to suppress accepted risks")
+	cmd.Flags().StringVar(&signWithKey, "sign-with", "", "Ed25519 private key path to cryptographically sign the audit attestation")
+	cmd.Flags().StringVar(&issuer, "issuer", "", "Authority or CISO identity signing the audit attestation")
+	cmd.Flags().StringVar(&bundleFile, "bundle", "", "Path to signed offline capability bundle (.json)")
+	cmd.Flags().StringVar(&trustedKey, "trusted-key", "", "Base64 vendor public key to verify capability bundle")
 
 	return cmd
 }
@@ -207,6 +271,161 @@ func checkFailPolicy(report *model.ScanReport, policy string) {
 		fmt.Fprintf(os.Stderr, "\n[CI POLICY FAILURE] Scan failed because '%s' threshold was exceeded.\n", policy)
 		os.Exit(1)
 	}
+}
+
+func newKeygenCmd() *cobra.Command {
+	var outKey, outPub string
+	cmd := &cobra.Command{
+		Use:   "keygen",
+		Short: "Generate Ed25519 keypair for cryptographic audit signing",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			priv, pub, err := attestation.GenerateKeyPair()
+			if err != nil {
+				return err
+			}
+			if outKey == "" {
+				outKey = "qcore.key"
+			}
+			if outPub == "" {
+				outPub = "qcore.pub"
+			}
+			if err := os.WriteFile(outKey, []byte(priv), 0600); err != nil {
+				return err
+			}
+			if err := os.WriteFile(outPub, []byte(pub), 0644); err != nil {
+				return err
+			}
+			fmt.Printf("Generated signing keypair:\n  Private key: %s (mode 0600)\n  Public key:  %s\n", outKey, outPub)
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&outKey, "out-key", "qcore.key", "Output path for private signing key")
+	cmd.Flags().StringVar(&outPub, "out-pub", "qcore.pub", "Output path for public verification key")
+	return cmd
+}
+
+func newVerifyCmd() *cobra.Command {
+	var attPath, reportPath, cbomPath, pubKeyPath string
+	cmd := &cobra.Command{
+		Use:   "verify",
+		Short: "Verify a cryptographically signed audit certificate and prove tamper resistance",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if attPath == "" {
+				return fmt.Errorf("--attestation flag is required")
+			}
+			attData, err := os.ReadFile(attPath)
+			if err != nil {
+				return fmt.Errorf("failed reading attestation: %w", err)
+			}
+			att, err := attestation.FromJSON(attData)
+			if err != nil {
+				return fmt.Errorf("failed parsing attestation: %w", err)
+			}
+
+			var reportBytes, cbomBytes []byte
+			if reportPath != "" {
+				reportBytes, _ = os.ReadFile(reportPath)
+			}
+			if cbomPath != "" {
+				cbomBytes, _ = os.ReadFile(cbomPath)
+			}
+
+			var expectedPub string
+			if pubKeyPath != "" {
+				pubRaw, err := os.ReadFile(pubKeyPath)
+				if err != nil {
+					return fmt.Errorf("failed reading public key: %w", err)
+				}
+				expectedPub = strings.TrimSpace(string(pubRaw))
+			}
+
+			valid, msg := attestation.VerifyAttestation(att, reportBytes, cbomBytes, expectedPub)
+			fmt.Println("══════════════════════════════════════════════════════════════════════════════")
+			fmt.Println("   VARDHAN Q-CORE :: CRYPTOGRAPHIC ATTESTATION VERIFICATION")
+			fmt.Println("══════════════════════════════════════════════════════════════════════════════")
+			fmt.Printf(" Attestation ID:    %s\n", att.ID)
+			fmt.Printf(" Issuer:            %s\n", att.Issuer)
+			fmt.Printf(" Timestamp:         %s\n", att.Timestamp.Format("2006-01-02 15:04:05 UTC"))
+			fmt.Printf(" Target Directory:  %s\n", att.Target.Directory)
+			fmt.Printf(" Quantum Risk KPI:  %d vulnerable usages | Max Score: %.1f\n",
+				att.Summary.QuantumVulnerableCount, att.Summary.MaxRiskScore)
+			fmt.Println("──────────────────────────────────────────────────────────────────────────────")
+			if valid {
+				fmt.Printf(" STATUS: [VERIFIED AUTHENTIC] %s\n", msg)
+			} else {
+				fmt.Printf(" STATUS: [FAILED / TAMPERED]  %s\n", msg)
+				os.Exit(1)
+			}
+			fmt.Println("══════════════════════════════════════════════════════════════════════════════")
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&attPath, "attestation", "", "Path to audit attestation JSON file")
+	cmd.Flags().StringVar(&reportPath, "report", "", "Path to original report JSON file (to verify content digest)")
+	cmd.Flags().StringVar(&cbomPath, "cbom", "", "Path to original CBOM JSON file (to verify CBOM digest)")
+	cmd.Flags().StringVar(&pubKeyPath, "pubkey", "", "Path to trusted public key file (optional)")
+	return cmd
+}
+
+func newBaselineCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "baseline",
+		Short: "Manage accepted risk baselines and exemptions (PRD F-08)",
+	}
+
+	var approver, reason, outPath string
+	var validityDays int
+
+	initCmd := &cobra.Command{
+		Use:   "init [path]",
+		Short: "Snapshot existing scan findings into an approved baseline register",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			targetDir := "."
+			if len(args) > 0 {
+				targetDir = args[0]
+			}
+			absTarget, err := filepath.Abs(targetDir)
+			if err != nil {
+				return err
+			}
+
+			engine, err := rules.NewDefaultEngine()
+			if err != nil {
+				return err
+			}
+			sc := scanner.NewScanner(engine, Version)
+			report, err := sc.ScanDirectory(absTarget)
+			if err != nil {
+				return err
+			}
+
+			if approver == "" {
+				approver = "CISO / AppSec Lead"
+			}
+			if reason == "" {
+				reason = "Approved legacy cryptography pending PQC migration plan"
+			}
+			if outPath == "" {
+				outPath = ".qcore-baseline.json"
+			}
+
+			bl := baseline.CreateFromReport(report, approver, reason, validityDays)
+			if err := bl.Save(outPath); err != nil {
+				return fmt.Errorf("failed saving baseline: %w", err)
+			}
+
+			fmt.Printf("Initialized baseline at %s with %d approved exceptions.\n", outPath, len(bl.Exceptions))
+			fmt.Printf("Approved By: %s | Reason: %s | Validity: %d days\n", approver, reason, validityDays)
+			return nil
+		},
+	}
+	initCmd.Flags().StringVar(&approver, "approved-by", "AppSec Lead", "Name or email of approving security officer")
+	initCmd.Flags().StringVar(&reason, "reason", "Initial risk acceptance baseline", "Formal business reason for acceptance")
+	initCmd.Flags().IntVar(&validityDays, "days", 365, "Validity duration in days before exception expires")
+	initCmd.Flags().StringVarP(&outPath, "out", "o", ".qcore-baseline.json", "Output baseline file path")
+
+	cmd.AddCommand(initCmd)
+	return cmd
 }
 
 func newRulesCmd() *cobra.Command {
@@ -315,6 +534,7 @@ func newVersionCmd() *cobra.Command {
 			fmt.Println("  • SARIF Output:   OASIS SARIF v2.1.0 (GitHub Code Scanning)")
 			fmt.Println("  • PQC Target:     NIST FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA)")
 			fmt.Println("  • Security Baseline: CNSA 2.0 / NIST SP 800-131A Rev 2")
+			fmt.Println("  • Audit Signing:  Ed25519 Cryptographic Attestation Certificates")
 		},
 	}
 }

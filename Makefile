@@ -12,6 +12,12 @@ build:
 test:
 	go test -v ./...
 
+keygen: build
+	./$(BINARY_NAME) keygen --out-key qcore.key --out-pub qcore.pub
+
+baseline: build
+	./$(BINARY_NAME) baseline init testdata/samples -o .qcore-baseline.json
+
 benchmark: build
 	./$(BINARY_NAME) benchmark
 
