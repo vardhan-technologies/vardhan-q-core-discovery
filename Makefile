@@ -39,6 +39,7 @@ help:
 	@echo "Vardhan Q-Core Makefile commands:"
 	@echo "  make build       - Compile static CLI binary"
 	@echo "  make test        - Run unit and integration tests"
+	@echo "  make benchmark   - Run accuracy release gate benchmark (precision & recall)"
 	@echo "  make test-rules  - Verify all rules and their positive/negative fixtures"
 	@echo "  make list-rules  - Display all active detection rules"
 	@echo "  make scan        - Run terminal discovery scan on sample repository"
