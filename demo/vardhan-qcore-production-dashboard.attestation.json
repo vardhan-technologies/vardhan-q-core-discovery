@@ -1,0 +1,23 @@
+{
+  "spec_version": "1.0",
+  "id": "qatt-b500e5658222549c",
+  "timestamp": "2026-11-10T18:16:12.915584Z",
+  "issuer": "Vardhan Technologies Audit Authority",
+  "target": {
+    "directory": "/Users/vishnuvardhanburri/Vardhan Q Core",
+    "tool_version": "0.1.0",
+    "rules_loaded": 42
+  },
+  "summary": {
+    "total_findings": 9,
+    "quantum_vulnerable_count": 0,
+    "weak_classical_count": 3,
+    "max_risk_score": 32.3
+  },
+  "digests": {
+    "report_sha256": "b500e5658222549cc3ffc940c7eda22734be2278990f668b2b2683ba644c3034",
+    "cbom_sha256": "3764fe066daa1d371f95f1c712279d6796f416c83b641308219011366e35242c"
+  },
+  "signature_base64": "QRKkXeawpcW1Rgj2UFlXwTu/j+v0dZY3vhrz0P/6s7QYMphwCu9+Y3zkM2feXIT5TA9H9CKRL3jzBSdAzIfkCg==",
+  "public_key_base64": "0C4ZaQ6CP/MepeFHOpfA1NJ5d+YYYfAx9lCPe+zwsTA="
+}
