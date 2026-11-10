@@ -1,0 +1,23 @@
+{
+  "spec_version": "1.0",
+  "id": "qatt-d8cd311cbad0b9d0",
+  "timestamp": "2026-11-10T17:57:27.968892Z",
+  "issuer": "Vardhan Air-Gap Certification Authority",
+  "target": {
+    "directory": "/Users/vishnuvardhanburri/vardhan-q-core-discovery/testdata/samples",
+    "tool_version": "0.1.0",
+    "rules_loaded": 42
+  },
+  "summary": {
+    "total_findings": 21,
+    "quantum_vulnerable_count": 14,
+    "weak_classical_count": 4,
+    "max_risk_score": 34.3
+  },
+  "digests": {
+    "report_sha256": "d8cd311cbad0b9d08794131a5aef6920feb66693f481c696c9a1d4ade17ecd24",
+    "cbom_sha256": "47a1283a35716d3283e08adcb864c73f1fdd44b04a89a80927e02edcde2d8147"
+  },
+  "signature_base64": "H8GwsPLwTxYdNlyHBiF6dhtXmR0NVZ4RCXe7ehj+1/gGVv5guKLKW97Za9oaw2Z39tQeikDR4d9nb2joS+uoDw==",
+  "public_key_base64": "UINXG/kqxv9dVn2y3iTP29qbsHoz2DXLIRfjAzkD++M="
+}

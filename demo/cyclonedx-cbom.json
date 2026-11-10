@@ -1,0 +1,144 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:58d57f85-7d33-346e-ddfc-77a760d3c7ee",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-10T18:01:54.671544Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "Vardhan Q-Core",
+          "version": "0.1.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "name": "Vardhan-Q-Core-Platform"
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "crypto:algo:md5",
+      "type": "cryptographic-asset",
+      "name": "MD5",
+      "description": "MD5 cryptographic usage in ",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "executionEnvironment": "software-plain-text",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": ".venv-pqc/lib/python3.14/site-packages/pip/_vendor/requests/auth.py",
+            "line": 148
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "qcore:quantum-vulnerable",
+          "value": "false"
+        },
+        {
+          "name": "qcore:confidence",
+          "value": "HIGH"
+        }
+      ]
+    },
+    {
+      "bom-ref": "crypto:algo:oqs-pqc",
+      "type": "cryptographic-asset",
+      "name": "OQS-PQC",
+      "description": "OQS-PQC cryptographic usage in ",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "key-exchange",
+          "executionEnvironment": "software-plain-text",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "scripts/pqc_cross_validate_liboqs.py",
+            "line": 184
+          },
+          {
+            "location": "scripts/pqc_cross_validate_liboqs.py",
+            "line": 202
+          },
+          {
+            "location": "scripts/pqc_cross_validate_liboqs.py",
+            "line": 233
+          },
+          {
+            "location": "scripts/pqc_cross_validate_liboqs.py",
+            "line": 243
+          },
+          {
+            "location": "scripts/pqc_cross_validate_liboqs.py",
+            "line": 268
+          },
+          {
+            "location": "scripts/pqc_cross_validate_liboqs.py",
+            "line": 274
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "qcore:quantum-vulnerable",
+          "value": "false"
+        },
+        {
+          "name": "qcore:confidence",
+          "value": "HIGH"
+        }
+      ]
+    },
+    {
+      "bom-ref": "crypto:algo:sha-1",
+      "type": "cryptographic-asset",
+      "name": "SHA-1",
+      "description": "SHA-1 cryptographic usage in ",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "executionEnvironment": "software-plain-text",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": ".venv-pqc/lib/python3.14/site-packages/pip/_vendor/requests/auth.py",
+            "line": 156
+          },
+          {
+            "location": ".venv-pqc/lib/python3.14/site-packages/pip/_vendor/requests/auth.py",
+            "line": 205
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "qcore:quantum-vulnerable",
+          "value": "false"
+        },
+        {
+          "name": "qcore:confidence",
+          "value": "HIGH"
+        }
+      ]
+    }
+  ]
+}

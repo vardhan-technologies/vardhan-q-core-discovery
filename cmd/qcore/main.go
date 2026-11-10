@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -221,6 +222,17 @@ func newScanCmd() *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("failed to serialize SARIF: %w", err)
 				}
+			case "html":
+				var attID string
+				if signWithKey != "" {
+					attID = "qatt-signed"
+				}
+				var htmlBuf bytes.Buffer
+				if err := reporter.GenerateHTMLDashboard(&htmlBuf, report, attID); err != nil {
+					return fmt.Errorf("failed generating HTML dashboard: %w", err)
+				}
+				outputBytes = htmlBuf.Bytes()
+
 			case "json":
 				outputBytes = reportBytes
 			case "table":
@@ -256,7 +268,7 @@ func newScanCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&format, "format", "f", "table", "Output format: table, cbom (CycloneDX 1.6), sarif (GitHub Code Scanning), json")
+	cmd.Flags().StringVarP(&format, "format", "f", "table", "Output format: table, cbom (CycloneDX 1.6), sarif (GitHub Code Scanning), json, html")
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Path to write report output")
 	cmd.Flags().StringVar(&rulesDir, "rules-dir", "", "Directory containing additional custom YAML rules")
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Fail CI with exit code 1 if threshold met: 'quantum-vulnerable', 'critical', 'high', 'any'")

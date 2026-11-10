@@ -1,0 +1,818 @@
+{
+  "metadata": {
+    "tool_name": "Vardhan Q-Core",
+    "tool_version": "0.1.0",
+    "scan_timestamp": "2026-11-10T23:27:27.968177+05:30",
+    "target_directory": "/Users/vishnuvardhanburri/vardhan-q-core-discovery/testdata/samples",
+    "files_scanned": 8,
+    "duration_ms": 0,
+    "rules_loaded": 42
+  },
+  "summary": {
+    "total_findings": 21,
+    "quantum_vulnerable_count": 14,
+    "weak_classical_count": 4,
+    "quantum_ready_count": 3,
+    "severity_counts": {
+      "HIGH": 10,
+      "INFO": 3,
+      "MEDIUM": 8
+    },
+    "algorithm_mix": {
+      "ECB-Mode": 1,
+      "ECDH": 1,
+      "ECDSA": 3,
+      "Ed25519, Curve25519, XSalsa20Poly1305": 1,
+      "MD5": 3,
+      "MD5, SHA-1, AES, RC4, TripleDES": 1,
+      "ML-KEM, Kyber, Dilithium, SIDH, SPHINCS+": 1,
+      "RSA": 5,
+      "RSA, DSA, ECC, AES, DES, MD5": 1,
+      "RSA, DSA, ECDSA, DH": 1,
+      "RSA, ECDSA, Ed25519, AES, X25519MLKEM768": 1,
+      "RSA, ECDSA, Ed25519, ChaCha20Poly1305, ML-KEM-768": 1,
+      "X25519MLKEM768": 1
+    },
+    "max_risk_score": 34.3,
+    "average_risk_score": 24.3
+  },
+  "assets": [
+    {
+      "id": "crypto:lib:golang.org/x/crypto",
+      "name": "golang.org/x/crypto",
+      "primitive": "key-exchange",
+      "library": "golang.org/x/crypto",
+      "library_version": "v0.24.0",
+      "quantum_vulnerable": false,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "go/go.mod",
+          "start_line": 6,
+          "end_line": 0,
+          "snippet": "golang.org/x/crypto @ v0.24.0"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:lib:github.com/cloudflare/circl",
+      "name": "github.com/cloudflare/circl",
+      "primitive": "key-exchange",
+      "library": "github.com/cloudflare/circl",
+      "library_version": "v1.3.7",
+      "quantum_vulnerable": false,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "go/go.mod",
+          "start_line": 7,
+          "end_line": 0,
+          "snippet": "github.com/cloudflare/circl @ v1.3.7"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:algo:md5",
+      "name": "MD5",
+      "primitive": "hash",
+      "quantum_vulnerable": false,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "java/CryptoUtil.java",
+          "start_line": 17,
+          "end_line": 17,
+          "snippet": "MessageDigest md5 = MessageDigest.getInstance(\"MD5\");"
+        },
+        {
+          "file_path": "js/key_exchange.js",
+          "start_line": 14,
+          "end_line": 14,
+          "snippet": "const hash = crypto.createHash('md5').update('session-data').digest('hex');"
+        },
+        {
+          "file_path": "python/crypto_service.py",
+          "start_line": 18,
+          "end_line": 18,
+          "snippet": "return hashlib.md5(payload).hexdigest()"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:algo:ecdsa",
+      "name": "ECDSA",
+      "primitive": "signature",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "java/CryptoUtil.java",
+          "start_line": 14,
+          "end_line": 14,
+          "snippet": "KeyPairGenerator ecGen = KeyPairGenerator.getInstance(\"EC\");"
+        },
+        {
+          "file_path": "python/crypto_service.py",
+          "start_line": 13,
+          "end_line": 13,
+          "snippet": "ec_key = ec.generate_private_key(ec.SECP256R1())"
+        },
+        {
+          "file_path": "python/crypto_service.py",
+          "start_line": 13,
+          "end_line": 13,
+          "snippet": "ec_key = ec.generate_private_key(ec.SECP256R1())"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:lib:org.bouncycastle:bcprov-jdk15on",
+      "name": "org.bouncycastle:bcprov-jdk15on",
+      "primitive": "key-exchange",
+      "library": "org.bouncycastle:bcprov-jdk15on",
+      "library_version": "1.70",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "java/pom.xml",
+          "start_line": 1,
+          "end_line": 0,
+          "snippet": "org.bouncycastle:bcprov-jdk15on @ 1.70"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:algo:ecdh",
+      "name": "ECDH",
+      "primitive": "key-exchange",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "js/key_exchange.js",
+          "start_line": 5,
+          "end_line": 5,
+          "snippet": "const alice = crypto.createECDH('secp256k1');"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:algo:x25519mlkem768",
+      "name": "X25519MLKEM768",
+      "primitive": "key-exchange",
+      "quantum_vulnerable": false,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "go/auth.go",
+          "start_line": 34,
+          "end_line": 34,
+          "snippet": "tls.X25519MLKEM768,"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:algo:rsa",
+      "name": "RSA",
+      "primitive": "signature",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "go/auth.go",
+          "start_line": 17,
+          "end_line": 17,
+          "snippet": "key, err := rsa.GenerateKey(rand.Reader, 2048)"
+        },
+        {
+          "file_path": "go/auth.go",
+          "start_line": 26,
+          "end_line": 26,
+          "snippet": "return rsa.SignPKCS1v15(rand.Reader, a.privateKey, 0, h[:])"
+        },
+        {
+          "file_path": "java/CryptoUtil.java",
+          "start_line": 10,
+          "end_line": 10,
+          "snippet": "KeyPairGenerator rsaGen = KeyPairGenerator.getInstance(\"RSA\");"
+        },
+        {
+          "file_path": "js/key_exchange.js",
+          "start_line": 9,
+          "end_line": 9,
+          "snippet": "const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {"
+        },
+        {
+          "file_path": "python/crypto_service.py",
+          "start_line": 7,
+          "end_line": 7,
+          "snippet": "rsa_key = rsa.generate_private_key("
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:algo:ecb-mode",
+      "name": "ECB-Mode",
+      "primitive": "block-cipher",
+      "quantum_vulnerable": false,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "java/CryptoUtil.java",
+          "start_line": 20,
+          "end_line": 20,
+          "snippet": "Cipher cipher = Cipher.getInstance(\"AES/ECB/PKCS5Padding\");"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:lib:crypto-js",
+      "name": "crypto-js",
+      "primitive": "key-exchange",
+      "library": "crypto-js",
+      "library_version": "^4.2.0",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "js/package.json",
+          "start_line": 1,
+          "end_line": 0,
+          "snippet": "crypto-js @ ^4.2.0"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:lib:tweetnacl",
+      "name": "tweetnacl",
+      "primitive": "key-exchange",
+      "library": "tweetnacl",
+      "library_version": "^1.0.3",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "js/package.json",
+          "start_line": 1,
+          "end_line": 0,
+          "snippet": "tweetnacl @ ^1.0.3"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:lib:cryptography",
+      "name": "cryptography",
+      "primitive": "key-exchange",
+      "library": "cryptography",
+      "library_version": "42.0.5",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "python/requirements.txt",
+          "start_line": 1,
+          "end_line": 0,
+          "snippet": "cryptography @ 42.0.5"
+        }
+      ],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "crypto:lib:pycryptodome",
+      "name": "pycryptodome",
+      "primitive": "key-exchange",
+      "library": "pycryptodome",
+      "library_version": "3.20.0",
+      "quantum_vulnerable": true,
+      "nist_quantum_security_level": 0,
+      "classical_security_level": 0,
+      "locations": [
+        {
+          "file_path": "python/requirements.txt",
+          "start_line": 2,
+          "end_line": 0,
+          "snippet": "pycryptodome @ 3.20.0"
+        }
+      ],
+      "confidence": "HIGH"
+    }
+  ],
+  "findings": [
+    {
+      "id": "go-pqc-hybrid-x25519mlkem-1214e2d5-34",
+      "rule_id": "go-pqc-hybrid-x25519mlkem",
+      "title": "Use of X25519MLKEM768 (quantum-ready-pqc)",
+      "category": "quantum-ready-pqc",
+      "severity": "INFO",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "X25519MLKEM768",
+      "location": {
+        "file_path": "go/auth.go",
+        "start_line": 34,
+        "end_line": 34,
+        "snippet": "tls.X25519MLKEM768,"
+      },
+      "message": "Hybrid Post-Quantum Key Exchange (X25519 + ML-KEM-768) detected. Provides defense-in-depth against both classical and quantum adversaries.\n",
+      "remediation": "Verified hybrid implementation.",
+      "references": [
+        "IETF draft-ietf-tls-hybrid-design",
+        "NIST FIPS 203"
+      ],
+      "risk_score": 0,
+      "asset_ref": "crypto:algo:x25519mlkem768"
+    },
+    {
+      "id": "go-rsa-keygen-1214e2d5-17",
+      "rule_id": "go-rsa-keygen",
+      "title": "Use of RSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA",
+      "location": {
+        "file_path": "go/auth.go",
+        "start_line": 17,
+        "end_line": 17,
+        "snippet": "key, err := rsa.GenerateKey(rand.Reader, 2048)"
+      },
+      "message": "RSA key generation detected. RSA is vulnerable to Shor's algorithm at any key size. Plan migration to a hybrid or PQC digital signature (ML-DSA / FIPS 204) or KEM (ML-KEM / FIPS 203).\n",
+      "remediation": "Migrate to ML-DSA (FIPS 204) for digital signatures or ML-KEM (FIPS 203) for key establishment.",
+      "references": [
+        "NIST FIPS 203, FIPS 204",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:rsa"
+    },
+    {
+      "id": "go-rsa-sign-1214e2d5-26",
+      "rule_id": "go-rsa-sign",
+      "title": "Use of RSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA",
+      "location": {
+        "file_path": "go/auth.go",
+        "start_line": 26,
+        "end_line": 26,
+        "snippet": "return rsa.SignPKCS1v15(rand.Reader, a.privateKey, 0, h[:])"
+      },
+      "message": "RSA signature operation detected. RSA signatures are vulnerable to Shor's algorithm.",
+      "remediation": "Adopt ML-DSA (FIPS 204) or State-ful Hash-Based Signatures (SLH-DSA / LMS) for long-lived code signing.",
+      "references": [
+        "NIST FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:rsa"
+    },
+    {
+      "id": "dep-a21cca9b-6",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: golang.org/x/crypto (SUPPORTED)",
+      "category": "quantum-ready-pqc",
+      "severity": "INFO",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "RSA, ECDSA, Ed25519, ChaCha20Poly1305, ML-KEM-768",
+      "location": {
+        "file_path": "go/go.mod",
+        "start_line": 6,
+        "end_line": 0,
+        "snippet": "golang.org/x/crypto @ v0.24.0"
+      },
+      "message": "Dependency golang.org/x/crypto version v0.24.0 identified. PQC Support: SUPPORTED. Algorithms provided: [RSA ECDSA Ed25519 ChaCha20Poly1305 ML-KEM-768]",
+      "remediation": "Library already includes post-quantum cryptography support. Ensure PQC algorithms (e.g. ML-KEM, ML-DSA) are configured.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 0,
+      "asset_ref": "crypto:lib:golang.org/x/crypto"
+    },
+    {
+      "id": "dep-e12ff7fa-7",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: github.com/cloudflare/circl (SUPPORTED)",
+      "category": "quantum-ready-pqc",
+      "severity": "INFO",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "ML-KEM, Kyber, Dilithium, SIDH, SPHINCS+",
+      "location": {
+        "file_path": "go/go.mod",
+        "start_line": 7,
+        "end_line": 0,
+        "snippet": "github.com/cloudflare/circl @ v1.3.7"
+      },
+      "message": "Dependency github.com/cloudflare/circl version v1.3.7 identified. PQC Support: SUPPORTED. Algorithms provided: [ML-KEM Kyber Dilithium SIDH SPHINCS+]",
+      "remediation": "Library already includes post-quantum cryptography support. Ensure PQC algorithms (e.g. ML-KEM, ML-DSA) are configured.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 0,
+      "asset_ref": "crypto:lib:github.com/cloudflare/circl"
+    },
+    {
+      "id": "java-ec-keygen-74357483-14",
+      "rule_id": "java-ec-keygen",
+      "title": "Use of ECDSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "ECDSA",
+      "location": {
+        "file_path": "java/CryptoUtil.java",
+        "start_line": 14,
+        "end_line": 14,
+        "snippet": "KeyPairGenerator ecGen = KeyPairGenerator.getInstance(\"EC\");"
+      },
+      "message": "Java KeyPairGenerator initialized for Elliptic Curve cryptography.",
+      "remediation": "Upgrade to Bouncy Castle 1.78+ and instantiate ML-DSA or ML-KEM.",
+      "references": [
+        "NIST FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:ecdsa"
+    },
+    {
+      "id": "java-rsa-keygen-74357483-10",
+      "rule_id": "java-rsa-keygen",
+      "title": "Use of RSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA",
+      "location": {
+        "file_path": "java/CryptoUtil.java",
+        "start_line": 10,
+        "end_line": 10,
+        "snippet": "KeyPairGenerator rsaGen = KeyPairGenerator.getInstance(\"RSA\");"
+      },
+      "message": "Java KeyPairGenerator configured for RSA. Vulnerable to Shor's algorithm.",
+      "remediation": "Switch to Bouncy Castle PQC provider using ML-KEM or ML-DSA.",
+      "references": [
+        "NIST FIPS 203, FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:rsa"
+    },
+    {
+      "id": "java-md5-74357483-17",
+      "rule_id": "java-md5",
+      "title": "Use of MD5 (weak-classical-cryptography)",
+      "category": "weak-classical-cryptography",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "MD5",
+      "location": {
+        "file_path": "java/CryptoUtil.java",
+        "start_line": 17,
+        "end_line": 17,
+        "snippet": "MessageDigest md5 = MessageDigest.getInstance(\"MD5\");"
+      },
+      "message": "Java MessageDigest configured with MD5.",
+      "remediation": "Upgrade to SHA-256.",
+      "references": [
+        "NIST SP 800-131A"
+      ],
+      "risk_score": 32.3,
+      "asset_ref": "crypto:algo:md5"
+    },
+    {
+      "id": "java-ecb-mode-74357483-20",
+      "rule_id": "java-ecb-mode",
+      "title": "Use of ECB-Mode (weak-classical-cryptography)",
+      "category": "weak-classical-cryptography",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "ECB-Mode",
+      "location": {
+        "file_path": "java/CryptoUtil.java",
+        "start_line": 20,
+        "end_line": 20,
+        "snippet": "Cipher cipher = Cipher.getInstance(\"AES/ECB/PKCS5Padding\");"
+      },
+      "message": "Electronic Codebook (ECB) cipher mode detected. ECB does not provide semantic security and leaks data patterns.",
+      "remediation": "Switch to Authenticated Encryption with Associated Data (AEAD) such as AES/GCM/NoPadding.",
+      "references": [
+        "NIST SP 800-38D"
+      ],
+      "risk_score": 24.2,
+      "asset_ref": "crypto:algo:ecb-mode"
+    },
+    {
+      "id": "dep-b2d394fe-1",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: org.bouncycastle:bcprov-jdk15on (UNSUPPORTED)",
+      "category": "vulnerable-dependency",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA, DSA, ECDSA, DH",
+      "location": {
+        "file_path": "java/pom.xml",
+        "start_line": 1,
+        "end_line": 0,
+        "snippet": "org.bouncycastle:bcprov-jdk15on @ 1.70"
+      },
+      "message": "Dependency org.bouncycastle:bcprov-jdk15on version 1.70 identified. PQC Support: UNSUPPORTED. Algorithms provided: [RSA DSA ECDSA DH]",
+      "remediation": "Upgrade org.bouncycastle:bcprov-jdk15on to a version supporting PQC (min recommended: ) or wrap with a quantum-safe provider.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 16.1,
+      "asset_ref": "crypto:lib:org.bouncycastle:bcprov-jdk15on"
+    },
+    {
+      "id": "js-ec-create-ecdh-502a7ee7-5",
+      "rule_id": "js-ec-create-ecdh",
+      "title": "Use of ECDH (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "ECDH",
+      "location": {
+        "file_path": "js/key_exchange.js",
+        "start_line": 5,
+        "end_line": 5,
+        "snippet": "const alice = crypto.createECDH('secp256k1');"
+      },
+      "message": "Node.js crypto ECDH exchange detected. Ephemeral ECDH is subject to Harvest-Now-Decrypt-Later attacks.",
+      "remediation": "Upgrade to hybrid key exchange (e.g. X25519MLKEM768).",
+      "references": [
+        "NIST FIPS 203"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:ecdh"
+    },
+    {
+      "id": "js-rsa-keygen-502a7ee7-9",
+      "rule_id": "js-rsa-keygen",
+      "title": "Use of RSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA",
+      "location": {
+        "file_path": "js/key_exchange.js",
+        "start_line": 9,
+        "end_line": 9,
+        "snippet": "const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {"
+      },
+      "message": "Node.js crypto module RSA key generation detected.",
+      "remediation": "Plan migration to post-quantum signature schemes or hybrid key exchange.",
+      "references": [
+        "NIST FIPS 203, FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:rsa"
+    },
+    {
+      "id": "js-hash-md5-502a7ee7-14",
+      "rule_id": "js-hash-md5",
+      "title": "Use of MD5 (weak-classical-cryptography)",
+      "category": "weak-classical-cryptography",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "MD5",
+      "location": {
+        "file_path": "js/key_exchange.js",
+        "start_line": 14,
+        "end_line": 14,
+        "snippet": "const hash = crypto.createHash('md5').update('session-data').digest('hex');"
+      },
+      "message": "Node.js crypto createHash with MD5.",
+      "remediation": "Upgrade to SHA-256.",
+      "references": [
+        "NIST SP 800-131A"
+      ],
+      "risk_score": 32.3,
+      "asset_ref": "crypto:algo:md5"
+    },
+    {
+      "id": "dep-01318172-1",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: crypto-js (UNSUPPORTED)",
+      "category": "vulnerable-dependency",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "MD5, SHA-1, AES, RC4, TripleDES",
+      "location": {
+        "file_path": "js/package.json",
+        "start_line": 1,
+        "end_line": 0,
+        "snippet": "crypto-js @ ^4.2.0"
+      },
+      "message": "Dependency crypto-js version ^4.2.0 identified. PQC Support: UNSUPPORTED. Algorithms provided: [MD5 SHA-1 AES RC4 TripleDES]",
+      "remediation": "Upgrade crypto-js to a version supporting PQC (min recommended: ) or wrap with a quantum-safe provider.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 16.1,
+      "asset_ref": "crypto:lib:crypto-js"
+    },
+    {
+      "id": "dep-5eff9814-1",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: tweetnacl (UNSUPPORTED)",
+      "category": "vulnerable-dependency",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "Ed25519, Curve25519, XSalsa20Poly1305",
+      "location": {
+        "file_path": "js/package.json",
+        "start_line": 1,
+        "end_line": 0,
+        "snippet": "tweetnacl @ ^1.0.3"
+      },
+      "message": "Dependency tweetnacl version ^1.0.3 identified. PQC Support: UNSUPPORTED. Algorithms provided: [Ed25519 Curve25519 XSalsa20Poly1305]",
+      "remediation": "Upgrade tweetnacl to a version supporting PQC (min recommended: ) or wrap with a quantum-safe provider.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 16.1,
+      "asset_ref": "crypto:lib:tweetnacl"
+    },
+    {
+      "id": "py-ec-keygen-e37b397a-13",
+      "rule_id": "py-ec-keygen",
+      "title": "Use of ECDSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "ECDSA",
+      "location": {
+        "file_path": "python/crypto_service.py",
+        "start_line": 13,
+        "end_line": 13,
+        "snippet": "ec_key = ec.generate_private_key(ec.SECP256R1())"
+      },
+      "message": "Python cryptography EC key generation detected. Vulnerable to Shor's algorithm.",
+      "remediation": "Plan migration to ML-DSA or hybrid signature schemes.",
+      "references": [
+        "NIST FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:ecdsa"
+    },
+    {
+      "id": "py-ec-curve-ref-e37b397a-13",
+      "rule_id": "py-ec-curve-ref",
+      "title": "Use of ECDSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "ECDSA",
+      "location": {
+        "file_path": "python/crypto_service.py",
+        "start_line": 13,
+        "end_line": 13,
+        "snippet": "ec_key = ec.generate_private_key(ec.SECP256R1())"
+      },
+      "message": "Standard NIST/Koblitz elliptic curve instantiation detected.",
+      "remediation": "Assess data confidentiality lifetime and transition to PQC schemes.",
+      "references": [
+        "NIST FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:ecdsa"
+    },
+    {
+      "id": "py-rsa-keygen-e37b397a-7",
+      "rule_id": "py-rsa-keygen",
+      "title": "Use of RSA (quantum-vulnerable-public-key)",
+      "category": "quantum-vulnerable-public-key",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA",
+      "location": {
+        "file_path": "python/crypto_service.py",
+        "start_line": 7,
+        "end_line": 7,
+        "snippet": "rsa_key = rsa.generate_private_key("
+      },
+      "message": "Python cryptography RSA key generation detected. Shor's algorithm renders RSA vulnerable.",
+      "remediation": "Migrate to hybrid key exchange or ML-DSA signatures.",
+      "references": [
+        "NIST FIPS 203, FIPS 204"
+      ],
+      "risk_score": 34.3,
+      "asset_ref": "crypto:algo:rsa"
+    },
+    {
+      "id": "py-md5-e37b397a-18",
+      "rule_id": "py-md5",
+      "title": "Use of MD5 (weak-classical-cryptography)",
+      "category": "weak-classical-cryptography",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": false,
+      "algorithm": "MD5",
+      "location": {
+        "file_path": "python/crypto_service.py",
+        "start_line": 18,
+        "end_line": 18,
+        "snippet": "return hashlib.md5(payload).hexdigest()"
+      },
+      "message": "hashlib.md5 detected. Collision-vulnerable hash function.",
+      "remediation": "Upgrade to hashlib.sha256() or hashlib.sha3_256().",
+      "references": [
+        "NIST SP 800-131A"
+      ],
+      "risk_score": 32.3,
+      "asset_ref": "crypto:algo:md5"
+    },
+    {
+      "id": "dep-e0655481-1",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: cryptography (PARTIAL_HYBRID)",
+      "category": "vulnerable-dependency",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA, ECDSA, Ed25519, AES, X25519MLKEM768",
+      "location": {
+        "file_path": "python/requirements.txt",
+        "start_line": 1,
+        "end_line": 0,
+        "snippet": "cryptography @ 42.0.5"
+      },
+      "message": "Dependency cryptography version 42.0.5 identified. PQC Support: PARTIAL_HYBRID. Algorithms provided: [RSA ECDSA Ed25519 AES X25519MLKEM768]",
+      "remediation": "Upgrade cryptography to a version supporting PQC (min recommended: 44.0.0) or wrap with a quantum-safe provider.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 16.1,
+      "asset_ref": "crypto:lib:cryptography"
+    },
+    {
+      "id": "dep-e27a2881-2",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "title": "Cryptographic library detected: pycryptodome (UNSUPPORTED)",
+      "category": "vulnerable-dependency",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "quantum_vulnerable": true,
+      "algorithm": "RSA, DSA, ECC, AES, DES, MD5",
+      "location": {
+        "file_path": "python/requirements.txt",
+        "start_line": 2,
+        "end_line": 0,
+        "snippet": "pycryptodome @ 3.20.0"
+      },
+      "message": "Dependency pycryptodome version 3.20.0 identified. PQC Support: UNSUPPORTED. Algorithms provided: [RSA DSA ECC AES DES MD5]",
+      "remediation": "Upgrade pycryptodome to a version supporting PQC (min recommended: ) or wrap with a quantum-safe provider.",
+      "references": [
+        "NIST Post-Quantum Cryptography Standardization",
+        "CNSA 2.0 Timeline"
+      ],
+      "risk_score": 16.1,
+      "asset_ref": "crypto:lib:pycryptodome"
+    }
+  ]
+}

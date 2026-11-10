@@ -1,0 +1,18 @@
+{
+  "license_id": "LIC-BARCLA-1794333523",
+  "customer_name": "Barclays Bank PLC",
+  "tier": "ENTERPRISE_AIRGAP",
+  "issued_at": "2026-11-10T17:58:43.049883Z",
+  "expires_at": "2027-11-10T17:58:43.049883Z",
+  "grace_period_days": 14,
+  "max_repositories": 0,
+  "features": [
+    "cbom",
+    "sarif",
+    "attestation",
+    "offline_bundle",
+    "airgap"
+  ],
+  "signature_base64": "f02NWge+Sc2PMH+33+dK62Iyiqpd3sFLrJ1EAn80K68AsRNaIcIRaMRy4a03jZl7PX9opJOZCFQ3u3gTRXk1Bg==",
+  "vendor_public_key_base64": "/A98cu+sOdVO7NnXB4LN9jHGA21pIl3OFNTIYu3YNB8="
+}

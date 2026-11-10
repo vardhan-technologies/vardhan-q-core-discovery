@@ -1,0 +1,283 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Vardhan Q-Core",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/vardhan/qcore",
+          "rules": [
+            {
+              "id": "py-md5",
+              "name": "Use of MD5 (weak-classical-cryptography)",
+              "shortDescription": {
+                "text": "Use of MD5 (weak-classical-cryptography)"
+              },
+              "fullDescription": {
+                "text": "hashlib.md5 detected. Collision-vulnerable hash function."
+              },
+              "help": {
+                "text": "Upgrade to hashlib.sha256() or hashlib.sha3_256()."
+              },
+              "helpUri": "https://csrc.nist.gov/projects/post-quantum-cryptography",
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "weak-classical-cryptography"
+                ],
+                "precision": "high",
+                "problem": {
+                  "severity": ""
+                }
+              }
+            },
+            {
+              "id": "py-pqc-liboqs",
+              "name": "Use of OQS-PQC (quantum-ready-pqc)",
+              "shortDescription": {
+                "text": "Use of OQS-PQC (quantum-ready-pqc)"
+              },
+              "fullDescription": {
+                "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+              },
+              "help": {
+                "text": "Maintain up-to-date liboqs bindings and verify FIPS-approved algorithms."
+              },
+              "helpUri": "https://csrc.nist.gov/projects/post-quantum-cryptography",
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "quantum-ready-pqc"
+                ],
+                "precision": "high",
+                "problem": {
+                  "severity": ""
+                }
+              }
+            },
+            {
+              "id": "py-sha1",
+              "name": "Use of SHA-1 (weak-classical-cryptography)",
+              "shortDescription": {
+                "text": "Use of SHA-1 (weak-classical-cryptography)"
+              },
+              "fullDescription": {
+                "text": "hashlib.sha1 detected. Deprecated for security use."
+              },
+              "help": {
+                "text": "Upgrade to hashlib.sha256()."
+              },
+              "helpUri": "https://csrc.nist.gov/projects/post-quantum-cryptography",
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "weak-classical-cryptography"
+                ],
+                "precision": "high",
+                "problem": {
+                  "severity": ""
+                }
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "py-md5",
+          "level": "warning",
+          "message": {
+            "text": "hashlib.md5 detected. Collision-vulnerable hash function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".venv-pqc/lib/python3.14/site-packages/pip/_vendor/requests/auth.py"
+                },
+                "region": {
+                  "startLine": 148,
+                  "endLine": 148
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-sha1",
+          "level": "warning",
+          "message": {
+            "text": "hashlib.sha1 detected. Deprecated for security use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".venv-pqc/lib/python3.14/site-packages/pip/_vendor/requests/auth.py"
+                },
+                "region": {
+                  "startLine": 156,
+                  "endLine": 156
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-sha1",
+          "level": "warning",
+          "message": {
+            "text": "hashlib.sha1 detected. Deprecated for security use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".venv-pqc/lib/python3.14/site-packages/pip/_vendor/requests/auth.py"
+                },
+                "region": {
+                  "startLine": 205,
+                  "endLine": 205
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-pqc-liboqs",
+          "level": "note",
+          "message": {
+            "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "scripts/pqc_cross_validate_liboqs.py"
+                },
+                "region": {
+                  "startLine": 184,
+                  "endLine": 184
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-pqc-liboqs",
+          "level": "note",
+          "message": {
+            "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "scripts/pqc_cross_validate_liboqs.py"
+                },
+                "region": {
+                  "startLine": 202,
+                  "endLine": 202
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-pqc-liboqs",
+          "level": "note",
+          "message": {
+            "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "scripts/pqc_cross_validate_liboqs.py"
+                },
+                "region": {
+                  "startLine": 233,
+                  "endLine": 233
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-pqc-liboqs",
+          "level": "note",
+          "message": {
+            "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "scripts/pqc_cross_validate_liboqs.py"
+                },
+                "region": {
+                  "startLine": 243,
+                  "endLine": 243
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-pqc-liboqs",
+          "level": "note",
+          "message": {
+            "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "scripts/pqc_cross_validate_liboqs.py"
+                },
+                "region": {
+                  "startLine": 268,
+                  "endLine": 268
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "py-pqc-liboqs",
+          "level": "note",
+          "message": {
+            "text": "Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "scripts/pqc_cross_validate_liboqs.py"
+                },
+                "region": {
+                  "startLine": 274,
+                  "endLine": 274
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
