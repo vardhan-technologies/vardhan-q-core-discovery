@@ -1,0 +1,5 @@
+bin/
+*.exe
+*.test
+cbom.json
+results.sarif
