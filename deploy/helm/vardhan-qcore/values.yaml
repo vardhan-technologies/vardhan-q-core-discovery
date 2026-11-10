@@ -1,0 +1,35 @@
+# Default values for vardhan-qcore air-gapped deployment
+image:
+  repository: vardhan/qcore
+  pullPolicy: IfNotPresent
+  tag: "v0.1.0-airgap"
+
+security:
+  runAsUser: 10001
+  runAsGroup: 10001
+  readOnlyRootFilesystem: true
+  dropCapabilities:
+    - ALL
+
+airgap:
+  # Strictly blocks all ingress and egress via Kubernetes NetworkPolicy
+  enabled: true
+
+scan:
+  format: "cbom"
+  projectName: "airgap-core-banking"
+  failOn: "quantum-vulnerable"
+  exposure: "internet"
+  dataLifetime: "long"
+
+persistence:
+  sourcePvcName: "repo-source-pvc"
+  reportsPvcName: "cbom-reports-pvc"
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi

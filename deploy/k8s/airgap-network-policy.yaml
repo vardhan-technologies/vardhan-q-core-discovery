@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: qcore-airgap-isolation
+  namespace: qcore-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: vardhan-qcore
+  policyTypes:
+    - Ingress
+    - Egress
+  # Ingress: Disallow all inbound connections
+  ingress: []
+  # Egress: Disallow all outbound internet/cluster connections (STRICT AIR-GAP)
+  egress: []

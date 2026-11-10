@@ -1,0 +1,20 @@
+{{- if .Values.airgap.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "vardhan-qcore.fullname" . }}-airgap
+  labels:
+    app.kubernetes.io/name: {{ include "vardhan-qcore.name" . }}
+    helm.sh/chart: {{ include "vardhan-qcore.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "vardhan-qcore.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress: []
+{{- end }}

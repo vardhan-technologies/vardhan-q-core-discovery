@@ -1,0 +1,187 @@
+{
+  "version": "1.0",
+  "created_at": "2026-11-10T17:45:12.390213Z",
+  "updated_at": "2026-11-10T17:45:12.390227Z",
+  "exceptions": {
+    "01e730576520eb1d7a468615": {
+      "fingerprint": "01e730576520eb1d7a468615",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "file_path": "java/pom.xml",
+      "algorithm": "RSA, DSA, ECDSA, DH",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "05f8b6fba85c53e512965677": {
+      "fingerprint": "05f8b6fba85c53e512965677",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "file_path": "python/requirements.txt",
+      "algorithm": "RSA, DSA, ECC, AES, DES, MD5",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "1f2a8efa464c795c2cffb82a": {
+      "fingerprint": "1f2a8efa464c795c2cffb82a",
+      "rule_id": "java-rsa-keygen",
+      "file_path": "java/CryptoUtil.java",
+      "algorithm": "RSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "20a3b4efc3f29cf8501ae96a": {
+      "fingerprint": "20a3b4efc3f29cf8501ae96a",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "file_path": "python/requirements.txt",
+      "algorithm": "RSA, ECDSA, Ed25519, AES, X25519MLKEM768",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "35d691b61fbb81d44356943c": {
+      "fingerprint": "35d691b61fbb81d44356943c",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "file_path": "js/package.json",
+      "algorithm": "Ed25519, Curve25519, XSalsa20Poly1305",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "3d9b6ccd66e23451b583e692": {
+      "fingerprint": "3d9b6ccd66e23451b583e692",
+      "rule_id": "java-ecb-mode",
+      "file_path": "java/CryptoUtil.java",
+      "algorithm": "ECB-Mode",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "508b7b984ff614c2c18b8e64": {
+      "fingerprint": "508b7b984ff614c2c18b8e64",
+      "rule_id": "py-ec-curve-ref",
+      "file_path": "python/crypto_service.py",
+      "algorithm": "ECDSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "72dacdc768c6d3cc3d0c84d7": {
+      "fingerprint": "72dacdc768c6d3cc3d0c84d7",
+      "rule_id": "js-rsa-keygen",
+      "file_path": "js/key_exchange.js",
+      "algorithm": "RSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "82a8562329d52547ff2eab5e": {
+      "fingerprint": "82a8562329d52547ff2eab5e",
+      "rule_id": "DEP-CRYPTO-LIB",
+      "file_path": "js/package.json",
+      "algorithm": "MD5, SHA-1, AES, RC4, TripleDES",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "af7fc03d2590c5b88f627110": {
+      "fingerprint": "af7fc03d2590c5b88f627110",
+      "rule_id": "py-ec-keygen",
+      "file_path": "python/crypto_service.py",
+      "algorithm": "ECDSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "b06fbd84b847db6cca2522a6": {
+      "fingerprint": "b06fbd84b847db6cca2522a6",
+      "rule_id": "js-ec-create-ecdh",
+      "file_path": "js/key_exchange.js",
+      "algorithm": "ECDH",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "b16866576211231e2ea37b95": {
+      "fingerprint": "b16866576211231e2ea37b95",
+      "rule_id": "js-hash-md5",
+      "file_path": "js/key_exchange.js",
+      "algorithm": "MD5",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "b362d5069e3ceba110565f40": {
+      "fingerprint": "b362d5069e3ceba110565f40",
+      "rule_id": "py-md5",
+      "file_path": "python/crypto_service.py",
+      "algorithm": "MD5",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "b703a9ab5aa66123cffce051": {
+      "fingerprint": "b703a9ab5aa66123cffce051",
+      "rule_id": "go-rsa-sign",
+      "file_path": "go/auth.go",
+      "algorithm": "RSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "d73d89313bf69245be8036f2": {
+      "fingerprint": "d73d89313bf69245be8036f2",
+      "rule_id": "go-rsa-keygen",
+      "file_path": "go/auth.go",
+      "algorithm": "RSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "e10688b6444fb875ef1f1ee1": {
+      "fingerprint": "e10688b6444fb875ef1f1ee1",
+      "rule_id": "py-rsa-keygen",
+      "file_path": "python/crypto_service.py",
+      "algorithm": "RSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "e7e90b17cae627577edc3218": {
+      "fingerprint": "e7e90b17cae627577edc3218",
+      "rule_id": "java-md5",
+      "file_path": "java/CryptoUtil.java",
+      "algorithm": "MD5",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    },
+    "fb0cf3308577dc2f1bacdd3c": {
+      "fingerprint": "fb0cf3308577dc2f1bacdd3c",
+      "rule_id": "java-ec-keygen",
+      "file_path": "java/CryptoUtil.java",
+      "algorithm": "ECDSA",
+      "reason": "Approved for pilot phase",
+      "approved_by": "ciso@fintech.co",
+      "approved_at": "2026-11-10T17:45:12.390213Z",
+      "expires_at": "2027-11-10T17:45:12.390213Z"
+    }
+  }
+}

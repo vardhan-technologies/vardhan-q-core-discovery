@@ -13,6 +13,7 @@ import (
 	"github.com/vardhan/qcore/pkg/benchmark"
 	"github.com/vardhan/qcore/pkg/bundle"
 	"github.com/vardhan/qcore/pkg/cbom"
+	"github.com/vardhan/qcore/pkg/license"
 	"github.com/vardhan/qcore/pkg/model"
 	"github.com/vardhan/qcore/pkg/reporter"
 	"github.com/vardhan/qcore/pkg/rules"
@@ -42,6 +43,7 @@ CycloneDX 1.6 Cryptographic Bill of Materials (CBOM) and SARIF reports.`,
 	rootCmd.AddCommand(newKeygenCmd())
 	rootCmd.AddCommand(newVerifyCmd())
 	rootCmd.AddCommand(newBaselineCmd())
+	rootCmd.AddCommand(newLicenseCmd())
 	rootCmd.AddCommand(newVersionCmd())
 
 	if err := rootCmd.Execute(); err != nil {
@@ -64,6 +66,8 @@ func newScanCmd() *cobra.Command {
 		issuer        string
 		bundleFile    string
 		trustedKey    string
+		licenseFile   string
+		vendorKey     string
 	)
 
 	cmd := &cobra.Command{
@@ -79,6 +83,24 @@ func newScanCmd() *cobra.Command {
 			absTarget, err := filepath.Abs(targetDir)
 			if err != nil {
 				return fmt.Errorf("invalid target directory: %w", err)
+			}
+
+			// Verify offline license if provided (PRD L-03)
+			if licenseFile != "" {
+				lic, err := license.Load(licenseFile)
+				if err != nil {
+					return fmt.Errorf("failed to load offline license: %w", err)
+				}
+				valid, inGrace, msg := lic.Verify(vendorKey)
+				if !valid {
+					return fmt.Errorf("offline license verification failed: %s", msg)
+				}
+				if inGrace {
+					fmt.Printf("[LICENSE GRACE] %s\n", msg)
+				} else {
+					fmt.Printf("[LICENSE VERIFIED] Customer: %s | Tier: %s | Status: Active\n",
+						lic.CustomerName, lic.Tier)
+				}
 			}
 
 			// Initialize Rule Engine with bundled rules
@@ -246,6 +268,8 @@ func newScanCmd() *cobra.Command {
 	cmd.Flags().StringVar(&issuer, "issuer", "", "Authority or CISO identity signing the audit attestation")
 	cmd.Flags().StringVar(&bundleFile, "bundle", "", "Path to signed offline capability bundle (.json)")
 	cmd.Flags().StringVar(&trustedKey, "trusted-key", "", "Base64 vendor public key to verify capability bundle")
+	cmd.Flags().StringVar(&licenseFile, "license", "", "Path to signed offline license certificate (.lic/.json)")
+	cmd.Flags().StringVar(&vendorKey, "vendor-key", "", "Base64 vendor public key to verify offline license")
 
 	return cmd
 }
@@ -520,6 +544,118 @@ func newBenchmarkCmd() *cobra.Command {
 	cmd.Flags().Float64Var(&minRecall, "min-recall", 0.85, "Minimum required recall (0.0 to 1.0)")
 	cmd.Flags().Float64Var(&maxFPRate, "max-fp", 0.15, "Maximum allowed false-positive rate (0.0 to 1.0)")
 
+	return cmd
+}
+
+func newLicenseCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "license",
+		Short: "Manage and verify air-gapped offline enterprise licenses (PRD L-03)",
+	}
+
+	var customer, tier, keyPath, outPath string
+	var validityDays, graceDays, maxRepos int
+	var features []string
+
+	genCmd := &cobra.Command{
+		Use:   "generate",
+		Short: "Issue a cryptographically signed offline license certificate (Vendor tool)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if customer == "" {
+				return fmt.Errorf("--customer is required")
+			}
+			if keyPath == "" {
+				return fmt.Errorf("--key is required (vendor master private key)")
+			}
+			keyBytes, err := os.ReadFile(keyPath)
+			if err != nil {
+				return fmt.Errorf("failed reading vendor key: %w", err)
+			}
+			privKeyStr := strings.TrimSpace(string(keyBytes))
+
+			if len(features) == 0 {
+				features = []string{"cbom", "sarif", "attestation", "offline_bundle", "airgap"}
+			}
+
+			lic, err := license.GenerateLicense(customer, tier, validityDays, graceDays, maxRepos, features, privKeyStr)
+			if err != nil {
+				return fmt.Errorf("failed generating license: %w", err)
+			}
+
+			if outPath == "" {
+				outPath = "qcore.lic"
+			}
+			if err := lic.Save(outPath); err != nil {
+				return fmt.Errorf("failed saving license: %w", err)
+			}
+
+			fmt.Printf("Issued offline license:\n  License ID:    %s\n  Customer:      %s\n  Tier:          %s\n  Valid Until:   %s (+%d days grace)\n  Saved To:      %s\n",
+				lic.LicenseID, lic.CustomerName, lic.Tier, lic.ExpiresAt.Format("2006-01-02"), lic.GracePeriodDays, outPath)
+			return nil
+		},
+	}
+	genCmd.Flags().StringVar(&customer, "customer", "", "Customer / Financial Institution name")
+	genCmd.Flags().StringVar(&tier, "tier", "ENTERPRISE_AIRGAP", "License tier (ENTERPRISE_AIRGAP, MIDMARKET_ANNUAL, TRIAL)")
+	genCmd.Flags().IntVar(&validityDays, "days", 365, "Validity duration in days")
+	genCmd.Flags().IntVar(&graceDays, "grace-days", 14, "Grace period duration in days after expiry")
+	genCmd.Flags().IntVar(&maxRepos, "max-repos", 0, "Maximum repositories allowed (0 = unlimited)")
+	genCmd.Flags().StringSliceVar(&features, "features", nil, "Licensed capabilities")
+	genCmd.Flags().StringVar(&keyPath, "key", "", "Path to vendor Ed25519 private key")
+	genCmd.Flags().StringVarP(&outPath, "out", "o", "qcore.lic", "Output license file path")
+
+	var licPath, vendorKeyPath string
+	inspectCmd := &cobra.Command{
+		Use:   "inspect",
+		Short: "Inspect and verify an offline license certificate",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if licPath == "" {
+				return fmt.Errorf("--license is required")
+			}
+			lic, err := license.Load(licPath)
+			if err != nil {
+				return err
+			}
+
+			var vendorKey string
+			if vendorKeyPath != "" {
+				kBytes, err := os.ReadFile(vendorKeyPath)
+				if err != nil {
+					return err
+				}
+				vendorKey = strings.TrimSpace(string(kBytes))
+			}
+
+			valid, inGrace, msg := lic.Verify(vendorKey)
+
+			fmt.Println("══════════════════════════════════════════════════════════════════════════════")
+			fmt.Println("   VARDHAN Q-CORE :: OFFLINE ENTERPRISE LICENSE CERTIFICATE")
+			fmt.Println("══════════════════════════════════════════════════════════════════════════════")
+			fmt.Printf(" License ID:     %s\n", lic.LicenseID)
+			fmt.Printf(" Customer:       %s\n", lic.CustomerName)
+			fmt.Printf(" License Tier:   %s\n", lic.Tier)
+			fmt.Printf(" Issued At:      %s\n", lic.IssuedAt.Format("2006-01-02 15:04:05 UTC"))
+			fmt.Printf(" Expires At:     %s (+%d days grace period)\n", lic.ExpiresAt.Format("2006-01-02"), lic.GracePeriodDays)
+			fmt.Printf(" Authorized:     %s\n", strings.Join(lic.Features, ", "))
+			fmt.Println("──────────────────────────────────────────────────────────────────────────────")
+			if valid {
+				if inGrace {
+					fmt.Printf(" STATUS: [GRACE PERIOD ACTIVE] %s\n", msg)
+				} else {
+					fmt.Printf(" STATUS: [ACTIVE & VALID] %s\n", msg)
+				}
+			} else {
+				fmt.Printf(" STATUS: [BLOCKED / EXPIRED] %s\n", msg)
+				os.Exit(1)
+			}
+			fmt.Println("══════════════════════════════════════════════════════════════════════════════")
+			return nil
+		},
+	}
+	inspectCmd.Flags().StringVarP(&licPath, "license", "l", "qcore.lic", "Path to offline license file")
+	inspectCmd.Flags().StringVar(&vendorKeyPath, "vendor-key", "", "Path to vendor public key file (optional)")
+
+	cmd.AddCommand(genCmd)
+	cmd.AddCommand(inspectCmd)
 	return cmd
 }
 

@@ -1,0 +1,54 @@
+# ==============================================================================
+# Vardhan Q-Core :: Air-Gapped Docker Compose Specification (PRD L-02)
+# Strictly enforced with network_mode: none (Zero outbound network access)
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  qcore-airgap:
+    image: vardhan/qcore:v0.1.0-airgap
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vardhan-qcore-airgap
+
+    # STRICT AIR-GAP REQUIREMENT (PRD L-02):
+    # network_mode: none completely detaches all network interfaces.
+    # No DNS resolution, no LAN access, zero outbound internet egress.
+    network_mode: "none"
+
+    # HARDENED CONTAINER INVARIANTS:
+    read_only: true
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+
+    # Ephemeral RAM scratch storage for scan processing (zero disk retention)
+    tmpfs:
+      - /tmp:size=512M,mode=1777,noexec,nodev,nosuid
+
+    volumes:
+      # 1. Target codebase to scan (STRICTLY READ-ONLY: prevents any code alteration)
+      - ${TARGET_REPO:-./testdata/samples}:/workspace:ro
+
+      # 2. Destination directory for output CBOM, SARIF, and signed attestations
+      - ${OUTPUT_DIR:-./output}:/reports:rw
+
+      # 3. Optional read-only CISO/Auditor Ed25519 signing key
+      - ${SIGNING_KEY:-/dev/null}:/keys/qcore.key:ro
+
+      # 4. Optional approved baseline register
+      - ${BASELINE_FILE:-/dev/null}:/config/baseline.json:ro
+
+    environment:
+      - QCORE_OFFLINE=1
+      - TMPDIR=/tmp
+
+    command: >
+      scan /workspace
+      --format ${FORMAT:-cbom}
+      --output /reports/${OUTPUT_FILE:-cbom.json}
+      --project-name "${PROJECT_NAME:-airgap-codebase}"

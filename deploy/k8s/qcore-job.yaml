@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: qcore-crypto-audit-scan
+  namespace: qcore-system
+  labels:
+    app.kubernetes.io/name: vardhan-qcore
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vardhan-qcore
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      hostNetwork: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: qcore-scanner
+          image: vardhan/qcore:v0.1.0-airgap
+          imagePullPolicy: IfNotPresent
+          command:
+            - /usr/local/bin/qcore
+            - scan
+            - /workspace
+            - -f
+            - cbom
+            - -o
+            - /reports/cbom.json
+            - --sign-with
+            - /keys/qcore.key
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: "500m"
+              memory: 512Mi
+
+          volumeMounts:
+            - name: source-code
+              mountPath: /workspace
+              readOnly: true
+            - name: scan-reports
+              mountPath: /reports
+              readOnly: false
+            - name: auditor-key
+              mountPath: /keys
+              readOnly: true
+            - name: ephemeral-tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: source-code
+          persistentVolumeClaim:
+            claimName: repo-source-pvc
+            readOnly: true
+        - name: scan-reports
+          persistentVolumeClaim:
+            claimName: cbom-reports-pvc
+        - name: auditor-key
+          secret:
+            secretName: qcore-auditor-key
+        - name: ephemeral-tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi

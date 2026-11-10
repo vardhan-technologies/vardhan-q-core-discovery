@@ -1,6 +1,6 @@
 BINARY_NAME=bin/qcore
 
-.PHONY: all build test test-rules benchmark scan clean help
+.PHONY: all build test test-rules benchmark keygen baseline scan clean help docker-build airgap-scan
 
 all: test build
 
@@ -11,6 +11,15 @@ build:
 
 test:
 	go test -v ./...
+
+airgap-scan: build
+	./scripts/airgap_scan.sh testdata/samples output "AirGap-Financial-System"
+
+docker-build:
+	docker build -t vardhan/qcore:v0.1.0-airgap .
+
+docker-airgap:
+	docker compose -f docker-compose.airgap.yml run --rm qcore-airgap
 
 keygen: build
 	./$(BINARY_NAME) keygen --out-key qcore.key --out-pub qcore.pub
@@ -51,3 +60,6 @@ help:
 	@echo "  make scan        - Run terminal discovery scan on sample repository"
 	@echo "  make cbom        - Generate CycloneDX 1.6 Cryptographic Bill of Materials"
 	@echo "  make sarif       - Generate SARIF 2.1.0 file for GitHub Code Scanning"
+	@echo "  make airgap-scan - Execute complete zero-egress air-gapped discovery cycle"
+	@echo "  make docker-build- Build hardened air-gapped container image"
+	@echo "  make docker-airgap - Run container in docker-compose with network_mode: none"

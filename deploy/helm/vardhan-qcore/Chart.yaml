@@ -1,0 +1,16 @@
+apiVersion: v2
+name: vardhan-qcore
+description: Enterprise Helm chart for Vardhan Q-Core Air-Gapped Cryptographic Discovery and CBOM Engine
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - post-quantum-cryptography
+  - cbom
+  - cyclonedx
+  - airgap
+  - security
+  - finance
+maintainers:
+  - name: Vardhan Technologies
+    email: security@vardhan.co
