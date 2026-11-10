@@ -1,0 +1,166 @@
+- id: go-ecdsa-keygen
+  language: go
+  regex: 'ecdsa\.GenerateKey\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: >
+      ECDSA key generation detected. Elliptic curve cryptography is vulnerable
+      to Shor's algorithm on quantum computers.
+    remediation: Migrate digital signatures to ML-DSA (FIPS 204) or SLH-DSA (FIPS 205).
+    references:
+      - NIST FIPS 204, FIPS 205
+      - CNSA 2.0
+  tests:
+    must_match:
+      - "key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)"
+      - "priv, err := ecdsa.GenerateKey(elliptic.P384(), crand.Reader)"
+    must_not_match:
+      - "key, err := rsa.GenerateKey(rand.Reader, 2048)"
+      - "key, err := mldsa.GenerateKey()"
+
+- id: go-ecdh-keygen
+  language: go
+  regex: 'ecdh\.(P256|P384|P521|X25519)\s*\(\)'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDH
+    primitive: key-exchange
+    quantum_vulnerable: true
+    severity: HIGH
+    message: >
+      ECDH / X25519 key exchange detected. Ephemeral elliptic curve key exchanges
+      are vulnerable to Harvest-Now-Decrypt-Later (HNDL) attacks.
+    remediation: Migrate to hybrid key exchange (e.g. X25519MLKEM768) or standalone ML-KEM-768.
+    references:
+      - NIST FIPS 203
+      - IETF RFC draft-ietf-tls-hybrid-design
+  tests:
+    must_match:
+      - "curve := ecdh.P256()"
+      - "priv, err := ecdh.X25519().GenerateKey(rand.Reader)"
+    must_not_match:
+      - "kem := mlkem.New768()"
+
+- id: py-ec-keygen
+  language: python
+  regex: 'ec\.generate_private_key\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Python cryptography EC key generation detected. Vulnerable to Shor's algorithm.
+    remediation: Plan migration to ML-DSA or hybrid signature schemes.
+    references:
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - "private_key = ec.generate_private_key(ec.SECP256R1())"
+      - "key = ec.generate_private_key(ec.SECP384R1(), default_backend())"
+    must_not_match:
+      - "key = rsa.generate_private_key(65537, 2048)"
+
+- id: py-ec-curve-ref
+  language: python
+  regex: 'ec\.(SECP256R1|SECP384R1|SECP521R1|SECP256K1|ECDSA)\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Standard NIST/Koblitz elliptic curve instantiation detected.
+    remediation: Assess data confidentiality lifetime and transition to PQC schemes.
+    references:
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - "curve = ec.SECP256R1()"
+      - "signature = private_key.sign(data, ec.ECDSA(hashes.SHA256()))"
+    must_not_match:
+      - "hash = hashes.SHA256()"
+
+- id: java-ec-keygen
+  language: java
+  regex: 'KeyPairGenerator\.getInstance\s*\(\s*["''](EC|ECDSA|ECDH)["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Java KeyPairGenerator initialized for Elliptic Curve cryptography.
+    remediation: Upgrade to Bouncy Castle 1.78+ and instantiate ML-DSA or ML-KEM.
+    references:
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");'
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDSA", "BC");'
+    must_not_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");'
+
+- id: java-ec-signature
+  language: java
+  regex: 'Signature\.getInstance\s*\(\s*["'']\w*withECDSA["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Java Signature configured with ECDSA.
+    remediation: Transition to ML-DSA-44/65/87 or SLH-DSA.
+    references:
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - 'Signature sig = Signature.getInstance("SHA256withECDSA");'
+      - 'Signature sig = Signature.getInstance("SHA384withECDSA", "BC");'
+    must_not_match:
+      - 'Signature sig = Signature.getInstance("SHA256withRSA");'
+
+- id: js-ec-create-ecdh
+  language: javascript
+  regex: 'crypto\.createECDH\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDH
+    primitive: key-exchange
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Node.js crypto ECDH exchange detected. Ephemeral ECDH is subject to Harvest-Now-Decrypt-Later attacks.
+    remediation: Upgrade to hybrid key exchange (e.g. X25519MLKEM768).
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "const ecdh = crypto.createECDH('secp256k1');"
+      - "const alice = crypto.createECDH('prime256v1');"
+    must_not_match:
+      - "const hash = crypto.createHash('sha256');"
+
+- id: js-ec-keygen
+  language: javascript
+  regex: 'generateKeyPair(Sync)?\s*\(\s*["'']ec["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: ECDSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Node.js crypto EC key pair generation.
+    remediation: Plan migration to post-quantum signature schemes.
+    references:
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - 'crypto.generateKeyPairSync("ec", { namedCurve: "secp256k1" });'
+      - 'generateKeyPair("ec", options, cb);'
+    must_not_match:
+      - 'crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });'

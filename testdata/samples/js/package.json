@@ -1,0 +1,8 @@
+{
+  "name": "crypto-vault-js",
+  "version": "1.0.0",
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "tweetnacl": "^1.0.3"
+  }
+}

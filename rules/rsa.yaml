@@ -1,0 +1,185 @@
+- id: go-rsa-keygen
+  language: go
+  regex: 'rsa\.GenerateKey\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: >
+      RSA key generation detected. RSA is vulnerable to Shor's algorithm at any key size.
+      Plan migration to a hybrid or PQC digital signature (ML-DSA / FIPS 204) or KEM (ML-KEM / FIPS 203).
+    remediation: Migrate to ML-DSA (FIPS 204) for digital signatures or ML-KEM (FIPS 203) for key establishment.
+    references:
+      - NIST FIPS 203, FIPS 204
+      - CNSA 2.0 Timeline
+  tests:
+    must_match:
+      - "key, err := rsa.GenerateKey(rand.Reader, 2048)"
+      - "privKey, _ := rsa.GenerateKey(crand.Reader, 4096)"
+    must_not_match:
+      - "key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)"
+      - "kemKey, err := mlkem.GenerateKey768()"
+
+- id: go-rsa-sign
+  language: go
+  regex: 'rsa\.(SignPKCS1v15|SignPSS)\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: RSA signature operation detected. RSA signatures are vulnerable to Shor's algorithm.
+    remediation: Adopt ML-DSA (FIPS 204) or State-ful Hash-Based Signatures (SLH-DSA / LMS) for long-lived code signing.
+    references:
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - "sig, err := rsa.SignPSS(rand.Reader, key, crypto.SHA256, digest, nil)"
+      - "sig, err := rsa.SignPKCS1v15(rand.Reader, privKey, crypto.SHA256, hash)"
+    must_not_match:
+      - "sig, err := ecdsa.SignASN1(rand.Reader, key, digest)"
+
+- id: go-rsa-encrypt
+  language: go
+  regex: 'rsa\.(EncryptOAEP|EncryptPKCS1v15)\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: pke
+    quantum_vulnerable: true
+    severity: HIGH
+    message: RSA public key encryption detected. Vulnerable to Shor's algorithm and Harvest-Now-Decrypt-Later attacks.
+    remediation: Transition key encapsulation to ML-KEM-768 or hybrid X25519MLKEM768.
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &privKey.PublicKey, secret, nil)"
+      - "c, err := rsa.EncryptPKCS1v15(rand.Reader, pub, secret)"
+    must_not_match:
+      - "ciphertext, err := aesGcm.Seal(nil, nonce, plaintext, nil)"
+
+- id: py-rsa-keygen
+  language: python
+  regex: 'rsa\.generate_private_key\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Python cryptography RSA key generation detected. Shor's algorithm renders RSA vulnerable.
+    remediation: Migrate to hybrid key exchange or ML-DSA signatures.
+    references:
+      - NIST FIPS 203, FIPS 204
+  tests:
+    must_match:
+      - "private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)"
+      - "key = rsa.generate_private_key(65537, 4096, default_backend())"
+    must_not_match:
+      - "private_key = ec.generate_private_key(ec.SECP256R1())"
+      - "key = ed25519.Ed25519PrivateKey.generate()"
+
+- id: py-pycryptodome-rsa
+  language: python
+  regex: 'RSA\.generate\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: PyCryptodome RSA key generation detected.
+    remediation: Plan migration to post-quantum algorithms (ML-KEM / ML-DSA).
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "key = RSA.generate(2048)"
+      - "secret_code = RSA.generate(4096)"
+    must_not_match:
+      - "key = ECC.generate(curve='P-256')"
+
+- id: java-rsa-keygen
+  language: java
+  regex: 'KeyPairGenerator\.getInstance\s*\(\s*["'']RSA["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Java KeyPairGenerator configured for RSA. Vulnerable to Shor's algorithm.
+    remediation: Switch to Bouncy Castle PQC provider using ML-KEM or ML-DSA.
+    references:
+      - NIST FIPS 203, FIPS 204
+  tests:
+    must_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");'
+      - 'kpg = KeyPairGenerator.getInstance("RSA", "BC");'
+    must_not_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");'
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-KEM");'
+
+- id: java-rsa-cipher
+  language: java
+  regex: 'Cipher\.getInstance\s*\(\s*["'']RSA[^"'']*["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: pke
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Java Cipher initialized with RSA.
+    remediation: Replace RSA encryption with ML-KEM encapsulation or AES-256 with quantum-safe KEM.
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - 'Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");'
+      - 'Cipher c = Cipher.getInstance("RSA");'
+    must_not_match:
+      - 'Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");'
+
+- id: js-rsa-keygen
+  language: javascript
+  regex: 'generateKeyPair(Sync)?\s*\(\s*["'']rsa["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Node.js crypto module RSA key generation detected.
+    remediation: Plan migration to post-quantum signature schemes or hybrid key exchange.
+    references:
+      - NIST FIPS 203, FIPS 204
+  tests:
+    must_match:
+      - 'crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });'
+      - 'generateKeyPair("rsa", options, callback);'
+    must_not_match:
+      - 'crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });'
+      - 'crypto.generateKeyPairSync("ed25519");'
+
+- id: js-node-forge-rsa
+  language: javascript
+  regex: 'forge\.pki\.rsa\.generateKeyPair'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: RSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Node-forge RSA key generation detected.
+    remediation: Transition to WebCrypto or PQC library implementations.
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "forge.pki.rsa.generateKeyPair({bits: 2048, workers: 2}, function(err, keypair) {});"
+    must_not_match:
+      - "forge.pki.ed25519.generateKeyPair();"

@@ -1,0 +1,47 @@
+name: Vardhan Q-Core CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run Rule Verification & Unit Tests
+        run: |
+          go test -v ./...
+
+      - name: Build Vardhan Q-Core CLI
+        run: |
+          go build -ldflags="-s -w" -o bin/qcore cmd/qcore/main.go
+
+      - name: Execute Cryptographic Discovery Scan (CycloneDX 1.6 CBOM)
+        run: |
+          ./bin/qcore scan . -f cbom -o cbom.json
+
+      - name: Execute Cryptographic Discovery Scan (SARIF)
+        run: |
+          ./bin/qcore scan . -f sarif -o results.sarif
+
+      - name: Upload CBOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyclonedx-cbom
+          path: cbom.json
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif

@@ -1,0 +1,140 @@
+- id: go-dsa-keygen
+  language: go
+  regex: '\bdsa\.GenerateKey\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: DSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: CRITICAL
+    message: >
+      DSA key generation detected. DSA is both classically deprecated by NIST SP 800-131A
+      and completely broken by Shor's algorithm on quantum systems.
+    remediation: Immediately retire DSA. Replace with ML-DSA (FIPS 204) or Ed25519 (classical transition).
+    references:
+      - NIST SP 800-131A Rev 2
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - "err := dsa.GenerateKey(&privKey, rand.Reader)"
+    must_not_match:
+      - "key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)"
+
+- id: go-dsa-params
+  language: go
+  regex: 'dsa\.GenerateParameters\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: DSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: CRITICAL
+    message: DSA parameter generation detected. Legacy algorithm.
+    remediation: Discontinue DSA usage immediately.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "err := dsa.GenerateParameters(&params, rand.Reader, dsa.L1024N160)"
+    must_not_match:
+      - "params := rsa.GenerateKey(rand.Reader, 2048)"
+
+- id: py-dsa-keygen
+  language: python
+  regex: 'dsa\.generate_private_key\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: DSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: CRITICAL
+    message: Python cryptography DSA key generation detected. Classically weak and quantum-vulnerable.
+    remediation: Discontinue DSA. Migrate to ML-DSA or modern signature primitives.
+    references:
+      - NIST SP 800-131A
+      - NIST FIPS 204
+  tests:
+    must_match:
+      - "private_key = dsa.generate_private_key(key_size=2048)"
+      - "key = dsa.generate_private_key(1024)"
+    must_not_match:
+      - "private_key = ec.generate_private_key(ec.SECP256R1())"
+
+- id: py-dh-params
+  language: python
+  regex: 'dh\.generate_parameters\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: Diffie-Hellman
+    primitive: key-exchange
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Finite-field Diffie-Hellman parameter generation detected. Vulnerable to Shor's algorithm.
+    remediation: Migrate to post-quantum key encapsulation (ML-KEM / FIPS 203).
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "parameters = dh.generate_parameters(generator=2, key_size=2048)"
+    must_not_match:
+      - "parameters = ec.generate_private_key(ec.SECP256R1())"
+
+- id: java-dsa-keygen
+  language: java
+  regex: 'KeyPairGenerator\.getInstance\s*\(\s*["'']DSA["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: DSA
+    primitive: signature
+    quantum_vulnerable: true
+    severity: CRITICAL
+    message: Java KeyPairGenerator configured for DSA.
+    remediation: Retire DSA immediately.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");'
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA", "SUN");'
+    must_not_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");'
+
+- id: java-dh-keygen
+  language: java
+  regex: 'KeyPairGenerator\.getInstance\s*\(\s*["''](DiffieHellman|DH)["'']'
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: Diffie-Hellman
+    primitive: key-exchange
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Java KeyPairGenerator configured for Diffie-Hellman key agreement.
+    remediation: Replace with ML-KEM or hybrid key exchange.
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("DiffieHellman");'
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("DH");'
+    must_not_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");'
+
+- id: js-diffie-hellman
+  language: javascript
+  regex: 'crypto\.(createDiffieHellman|createDiffieHellmanGroup)\s*\('
+  finding:
+    category: quantum-vulnerable-public-key
+    algorithm: Diffie-Hellman
+    primitive: key-exchange
+    quantum_vulnerable: true
+    severity: HIGH
+    message: Node.js crypto Diffie-Hellman instance created.
+    remediation: Upgrade key agreement to hybrid post-quantum schemes.
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "const dh = crypto.createDiffieHellman(2048);"
+      - "const group = crypto.createDiffieHellmanGroup('modp14');"
+    must_not_match:
+      - "const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);"

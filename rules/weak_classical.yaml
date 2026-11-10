@@ -1,0 +1,236 @@
+- id: go-md5-new
+  language: go
+  regex: 'md5\.New\s*\(\)'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: MD5
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: MD5 collision resistance is broken. Do not use for cryptographic integrity or signatures.
+    remediation: Upgrade to SHA-256, SHA-384, or SHA-3.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "h := md5.New()"
+      - "hasher := md5.New()"
+    must_not_match:
+      - "h := sha256.New()"
+      - "h := sha512.New()"
+
+- id: go-sha1-new
+  language: go
+  regex: 'sha1\.New\s*\(\)'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: SHA-1
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: SHA-1 collision resistance is broken (SHAttered attack). Deprecated by NIST.
+    remediation: Upgrade to SHA-256 or SHA-512.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "h := sha1.New()"
+    must_not_match:
+      - "h := sha256.New()"
+
+- id: go-des-cipher
+  language: go
+  regex: 'des\.(NewCipher|NewTripleDESCipher)\s*\('
+  finding:
+    category: weak-classical-cryptography
+    algorithm: 3DES
+    primitive: block-cipher
+    quantum_vulnerable: false
+    severity: HIGH
+    message: DES and Triple-DES have a 64-bit block size susceptible to Sweet32 attacks and are retired by NIST.
+    remediation: Migrate to AES-256-GCM or ChaCha20-Poly1305.
+    references:
+      - NIST SP 800-131A Rev 2
+  tests:
+    must_match:
+      - "block, err := des.NewCipher(key)"
+      - "block, err := des.NewTripleDESCipher(key)"
+    must_not_match:
+      - "block, err := aes.NewCipher(key)"
+
+- id: go-rc4-cipher
+  language: go
+  regex: 'rc4\.NewCipher\s*\('
+  finding:
+    category: weak-classical-cryptography
+    algorithm: RC4
+    primitive: stream-cipher
+    quantum_vulnerable: false
+    severity: CRITICAL
+    message: RC4 contains severe statistical biases and is prohibited in all modern protocols (RFC 7465).
+    remediation: Replace with AES-256-GCM or ChaCha20-Poly1305.
+    references:
+      - RFC 7465
+  tests:
+    must_match:
+      - "cipher, err := rc4.NewCipher(key)"
+    must_not_match:
+      - "cipher, err := chacha20poly1305.New(key)"
+
+- id: py-md5
+  language: python
+  regex: 'hashlib\.md5\s*\('
+  finding:
+    category: weak-classical-cryptography
+    algorithm: MD5
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: hashlib.md5 detected. Collision-vulnerable hash function.
+    remediation: Upgrade to hashlib.sha256() or hashlib.sha3_256().
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "digest = hashlib.md5(data).hexdigest()"
+      - "h = hashlib.md5()"
+    must_not_match:
+      - "digest = hashlib.sha256(data).hexdigest()"
+
+- id: py-sha1
+  language: python
+  regex: 'hashlib\.sha1\s*\('
+  finding:
+    category: weak-classical-cryptography
+    algorithm: SHA-1
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: hashlib.sha1 detected. Deprecated for security use.
+    remediation: Upgrade to hashlib.sha256().
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "h = hashlib.sha1(b'input')"
+    must_not_match:
+      - "h = hashlib.sha256()"
+
+- id: py-arc4
+  language: python
+  regex: '(ARC4|DES|DES3)\.new\s*\('
+  finding:
+    category: weak-classical-cryptography
+    algorithm: LegacyCipher
+    primitive: block-cipher
+    quantum_vulnerable: false
+    severity: HIGH
+    message: Deprecated cipher (RC4/DES/3DES) in PyCryptodome.
+    remediation: Replace with AES-256-GCM.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "cipher = ARC4.new(key)"
+      - "cipher = DES.new(key, DES.MODE_ECB)"
+      - "cipher = DES3.new(key, DES3.MODE_CBC)"
+    must_not_match:
+      - "cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)"
+
+- id: java-md5
+  language: java
+  regex: 'MessageDigest\.getInstance\s*\(\s*["'']MD5["'']'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: MD5
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: Java MessageDigest configured with MD5.
+    remediation: Upgrade to SHA-256.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - 'MessageDigest md = MessageDigest.getInstance("MD5");'
+    must_not_match:
+      - 'MessageDigest md = MessageDigest.getInstance("SHA-256");'
+
+- id: java-sha1
+  language: java
+  regex: 'MessageDigest\.getInstance\s*\(\s*["'']SHA-?1["'']'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: SHA-1
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: Java MessageDigest configured with SHA-1.
+    remediation: Upgrade to SHA-256 or SHA-512.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - 'MessageDigest md = MessageDigest.getInstance("SHA-1");'
+      - 'MessageDigest md = MessageDigest.getInstance("SHA1");'
+    must_not_match:
+      - 'MessageDigest md = MessageDigest.getInstance("SHA-256");'
+
+- id: java-ecb-mode
+  language: java
+  regex: 'Cipher\.getInstance\s*\(\s*["''][^"'']+/ECB/[^"'']*["'']'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: ECB-Mode
+    primitive: block-cipher
+    quantum_vulnerable: false
+    severity: HIGH
+    message: Electronic Codebook (ECB) cipher mode detected. ECB does not provide semantic security and leaks data patterns.
+    remediation: Switch to Authenticated Encryption with Associated Data (AEAD) such as AES/GCM/NoPadding.
+    references:
+      - NIST SP 800-38D
+  tests:
+    must_match:
+      - 'Cipher c = Cipher.getInstance("AES/ECB/PKCS5Padding");'
+      - 'Cipher c = Cipher.getInstance("DES/ECB/NoPadding");'
+    must_not_match:
+      - 'Cipher c = Cipher.getInstance("AES/GCM/NoPadding");'
+
+- id: js-hash-md5
+  language: javascript
+  regex: 'crypto\.createHash\s*\(\s*["'']md5["'']'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: MD5
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: Node.js crypto createHash with MD5.
+    remediation: Upgrade to SHA-256.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "const hash = crypto.createHash('md5');"
+      - 'const hash = crypto.createHash("md5");'
+    must_not_match:
+      - "const hash = crypto.createHash('sha256');"
+
+- id: js-hash-sha1
+  language: javascript
+  regex: 'crypto\.createHash\s*\(\s*["'']sha1["'']'
+  finding:
+    category: weak-classical-cryptography
+    algorithm: SHA-1
+    primitive: hash
+    quantum_vulnerable: false
+    severity: MEDIUM
+    message: Node.js crypto createHash with SHA-1.
+    remediation: Upgrade to SHA-256.
+    references:
+      - NIST SP 800-131A
+  tests:
+    must_match:
+      - "const hash = crypto.createHash('sha1');"
+    must_not_match:
+      - "const hash = crypto.createHash('sha256');"

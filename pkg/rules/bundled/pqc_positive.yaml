@@ -1,0 +1,124 @@
+- id: go-pqc-mlkem
+  language: go
+  regex: '(mlkem\.New768|mlkem\.New1024|circl/kem/kyber)'
+  finding:
+    category: quantum-ready-pqc
+    algorithm: ML-KEM
+    primitive: key-exchange
+    quantum_vulnerable: false
+    severity: INFO
+    message: >
+      Post-quantum Key Encapsulation Mechanism (ML-KEM / FIPS 203) detected.
+      This implementation satisfies post-quantum security requirements.
+    remediation: Ensure parameter set (768 or 1024) matches data sensitivity requirements.
+    references:
+      - NIST FIPS 203 (ML-KEM)
+  tests:
+    must_match:
+      - "kem := mlkem.New768()"
+      - 'import "github.com/cloudflare/circl/kem/kyber/kyber768"'
+    must_not_match:
+      - "key, _ := rsa.GenerateKey(rand.Reader, 2048)"
+
+- id: go-pqc-mldsa
+  language: go
+  regex: '(mldsa\.New65|mldsa\.New87|circl/sign/dilithium)'
+  finding:
+    category: quantum-ready-pqc
+    algorithm: ML-DSA
+    primitive: signature
+    quantum_vulnerable: false
+    severity: INFO
+    message: >
+      Post-quantum Module-Lattice-Based Digital Signature (ML-DSA / FIPS 204) detected.
+      Quantum-safe digital signature verification active.
+    remediation: Compliant with NIST FIPS 204 and CNSA 2.0.
+    references:
+      - NIST FIPS 204 (ML-DSA)
+  tests:
+    must_match:
+      - "sig := mldsa.New65()"
+      - 'import "github.com/cloudflare/circl/sign/dilithium/mode3"'
+    must_not_match:
+      - "sig, _ := ecdsa.SignASN1(rand.Reader, key, hash)"
+
+- id: go-pqc-hybrid-x25519mlkem
+  language: go
+  regex: 'X25519MLKEM768'
+  finding:
+    category: quantum-ready-pqc
+    algorithm: X25519MLKEM768
+    primitive: key-exchange
+    quantum_vulnerable: false
+    severity: INFO
+    message: >
+      Hybrid Post-Quantum Key Exchange (X25519 + ML-KEM-768) detected.
+      Provides defense-in-depth against both classical and quantum adversaries.
+    remediation: Verified hybrid implementation.
+    references:
+      - IETF draft-ietf-tls-hybrid-design
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - "tlsConfig.CurvePreferences = []tls.CurveID{tls.X25519MLKEM768}"
+    must_not_match:
+      - "tlsConfig.CurvePreferences = []tls.CurveID{tls.X25519}"
+
+- id: py-pqc-liboqs
+  language: python
+  regex: 'oqs\.(KeyEncapsulation|Signature)\s*\('
+  finding:
+    category: quantum-ready-pqc
+    algorithm: OQS-PQC
+    primitive: key-exchange
+    quantum_vulnerable: false
+    severity: INFO
+    message: Open Quantum Safe (liboqs) wrapper detected. Post-quantum cryptographic primitive in use.
+    remediation: Maintain up-to-date liboqs bindings and verify FIPS-approved algorithms.
+    references:
+      - NIST FIPS 203, FIPS 204
+  tests:
+    must_match:
+      - 'kem = oqs.KeyEncapsulation("ML-KEM-768")'
+      - 'signer = oqs.Signature("ML-DSA-65")'
+    must_not_match:
+      - "key = rsa.generate_private_key(65537, 2048)"
+
+- id: java-pqc-bouncycastle
+  language: java
+  regex: '(BouncyCastlePQCProvider|MLKEMKeyGenerator|MLDSAKeyGenerator|SLHDSAKeyGenerator)'
+  finding:
+    category: quantum-ready-pqc
+    algorithm: Java-PQC
+    primitive: key-exchange
+    quantum_vulnerable: false
+    severity: INFO
+    message: Java Bouncy Castle PQC provider or FIPS 203/204 key generator detected.
+    remediation: Compliant post-quantum implementation.
+    references:
+      - NIST FIPS 203, FIPS 204, FIPS 205
+  tests:
+    must_match:
+      - "Security.addProvider(new BouncyCastlePQCProvider());"
+      - "MLKEMKeyGenerator kpg = new MLKEMKeyGenerator();"
+    must_not_match:
+      - 'KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");'
+
+- id: js-pqc-oqs
+  language: javascript
+  regex: '(@openquantumsafe/liboqs-node|oqs\.KeyEncapsulation)'
+  finding:
+    category: quantum-ready-pqc
+    algorithm: Node-PQC
+    primitive: key-exchange
+    quantum_vulnerable: false
+    severity: INFO
+    message: Node.js Open Quantum Safe bindings detected.
+    remediation: Compliant post-quantum implementation.
+    references:
+      - NIST FIPS 203
+  tests:
+    must_match:
+      - 'const oqs = require("@openquantumsafe/liboqs-node");'
+    must_not_match:
+      - 'const crypto = require("crypto");'
