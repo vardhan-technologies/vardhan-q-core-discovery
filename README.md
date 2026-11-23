@@ -156,3 +156,17 @@ vardhan-q-core/
 * **NIST FIPS 204:** Module-Lattice-Based Digital Signature Algorithm (ML-DSA)
 * **NIST FIPS 205:** Stateless Hash-Based Digital Signature Algorithm (SLH-DSA)
 * **NSA CNSA 2.0:** Commercial National Security Algorithm Suite 2.0
+
+---
+
+## 8. Commercial Engagement Packages
+
+| Package | Fee | Timeline | Description |
+|---------|-----|----------|-------------|
+| **Stage 1** — Architecture Assessment | **£21,001** fixed fee | 48 hours | Trust-boundary cryptographic topology mapping, throughput & latency gap analysis, EU DORA compliance gap register, Stage 2 execution specification |
+| **Stage 1.2** — Assessment + Full Deployment Bundle | **£89,999** fixed fee | 2 weeks | Stage 1 + Stage 2 in one contract. One NDA. One procurement cycle. Saves £6,002 vs buying separately. Full production access from day one. |
+| **Stage 2** — Customer Workflow Proof of Production | **£75,000** fixed fee | 5–10 days | Controlled sandbox/VPC execution of your selected workflow. ML-DSA-87 dual-signing live. Tamper rejection verified. Benchmark evidence pack delivered. |
+
+### S1.2 pitch line (for README description):
+> *One contract. One procurement cycle. Full production access from day one. Saves £6,002 vs purchasing Stage 1 and Stage 2 individually.*
+
