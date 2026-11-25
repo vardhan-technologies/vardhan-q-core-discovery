@@ -1,0 +1,43 @@
+name: 'Vardhan Q-Core Cryptographic Discovery & CBOM'
+description: 'Fast static cryptographic inventory scanner generating CycloneDX 1.6 CBOM and OASIS SARIF reports for NIST PQC & EU DORA compliance.'
+author: 'Vardhan Technologies'
+inputs:
+  path:
+    description: 'Path or repository directory to scan'
+    required: false
+    default: '.'
+  output-format:
+    description: 'Output format (summary, cbom, sarif, json)'
+    required: false
+    default: 'cbom'
+  output-file:
+    description: 'Output file path'
+    required: false
+    default: 'cbom.json'
+  sarif-file:
+    description: 'Secondary SARIF file path for GitHub Code Scanning'
+    required: false
+    default: 'results.sarif'
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+    - name: Build Q-Core Scanner
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        go build -ldflags="-s -w" -o bin/qcore cmd/qcore/main.go
+    - name: Run Cryptographic Discovery Scan (CBOM)
+      shell: bash
+      run: |
+        "${{ github.action_path }}/bin/qcore" scan "${{ inputs.path }}" -f "${{ inputs.output-format }}" -o "${{ inputs.output-file }}"
+    - name: Run Cryptographic Discovery Scan (SARIF)
+      shell: bash
+      run: |
+        "${{ github.action_path }}/bin/qcore" scan "${{ inputs.path }}" -f sarif -o "${{ inputs.sarif-file }}"
+branding:
+  icon: 'shield'
+  color: 'blue'
